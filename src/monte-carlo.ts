@@ -210,8 +210,7 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
 
     // Group projects by startYear, use lodash groupBy instead
     const projectsByStartYear: Dictionary<IProject[]> = {};
-    for (let i = 0; i < projects.length; ++i) {
-        const project = projects[i];
+    for (const project of projects) {
         const arr = projectsByStartYear[project.startYear] = projectsByStartYear[project.startYear] || [];
         arr.push(project);
     }
@@ -251,8 +250,7 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
         let amount = project.totalAmount;
         const projectsSameYear = environment.projectsByStartYear[project.startYear];
 
-        for (let i = 0; i < projectsSameYear.length; ++i) {
-            const otherProject = projectsSameYear[i];
+        for (const otherProject of projectsSameYear) {
             if (otherProject === project) {
                 break;
             }

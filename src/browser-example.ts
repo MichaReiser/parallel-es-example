@@ -1,6 +1,6 @@
 import {parallelMandelbrot, syncMandelbrot, createMandelOptions} from "./mandelbrot";
 import {syncMonteCarlo, parallelMonteCarlo, IProjectResult} from "./monte-carlo";
-// import {syncKnightTours, parallelKnightTours} from "./knights-tour";
+import {syncKnightTours, parallelKnightTours} from "./knights-tour";
 
 /* tslint:disable:no-console */
 const mandelbrotCanvas = document.querySelector("#mandelbrot-canvas") as HTMLCanvasElement;
@@ -98,7 +98,6 @@ function paintMonteCarloResult(results: IProjectResult[]) {
     }
 }
 
-/*
 const knightBoardResult = document.querySelector("#knight-board-result") as HTMLParagraphElement;
 
 document.querySelector("#knight-run-sync").addEventListener("click", function () {
@@ -124,4 +123,4 @@ document.querySelector("#knight-run-parallel").addEventListener("click", functio
             console.timeEnd("knight-run-parallel");
             knightBoardResult.innerText = `Found ${solutions} solutions for ${boardSize}x${boardSize} board`;
         }, (reason) => console.log(reason));
-}); */
+});
