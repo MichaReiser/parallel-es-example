@@ -1,4 +1,5 @@
-import {parallelMandelbrot, syncMandelbrot, createMandelOptions} from "./mandelbrot";
+import {/*parallelMandelbrot,*/ syncMandelbrot, createMandelOptions} from "./mandelbrot";
+import {mandelbrot as mandelbrotInlined} from "./mandelbrot-inlined";
 import {syncMonteCarlo, parallelMonteCarlo, IProjectResult} from "./monte-carlo";
 import {syncKnightTours, parallelKnightTours} from "./knights-tour";
 
@@ -35,20 +36,20 @@ const monteCarloOptions = {
 };
 const monteCarloTable = document.querySelector("#montecarlo-table") as HTMLTableElement;
 
-document.querySelector("#mandelbrot-run-async").addEventListener("click", function (event) {
+document.querySelector("#mandelbrot-run-parallel").addEventListener("click", function (event) {
     event.preventDefault();
 
     mandelbrotContext!.putImageData(mandelbrotContext!.createImageData(mandelbrotCanvas.width, mandelbrotCanvas.height), 0, 0);
-    const maxValuesPerTask = parseInt((document.querySelector("#mandelbrot-values-per-task") as HTMLInputElement).value, 10);
+    // const maxValuesPerTask = parseInt((document.querySelector("#mandelbrot-values-per-task") as HTMLInputElement).value, 10);
 
-    console.time("mandelbrot-async");
-    parallelMandelbrot(mandelbrotOptions, { maxValuesPerTask })
+    console.time("mandelbrot-parallel");
+    mandelbrotInlined(mandelbrotOptions.imageWidth, mandelbrotOptions.imageHeight, mandelbrotOptions.iterations)
         .subscribe((lines, index, blockSize) => {
             for (let i = 0; i < lines.length; ++i) {
                 mandelbrotContext!.putImageData(new ImageData(lines[i], mandelbrotCanvas.width, 1), 0, index * blockSize + i);
             }
         })
-        .then(() => console.timeEnd("mandelbrot-async"), reason => console.error(reason));
+        .then(() => console.timeEnd("mandelbrot-parallel"), reason => console.error(reason));
 });
 
 document.querySelector("#mandelbrot-run-sync").addEventListener("click", function () {

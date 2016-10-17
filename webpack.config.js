@@ -21,12 +21,18 @@ module.exports = {
                 test: /\.ts$/,
                 loader: "awesome-typescript-loader?useBabel"
             }, {
-                test: /\.parallel\.js/,
+                test: /\.parallel-es6\.js/,
                 loader: "source-map"
             }
         ]
     },
     plugins: [
-        new ParallelEsPlugin({})
+        new ParallelEsPlugin({
+            babelOptions: {
+                "presets": [
+                    ["es2015", { "modules": false }]
+                ]
+            }
+        })
     ]
 };

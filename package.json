@@ -11,10 +11,11 @@
   "author": "Micha Reiser <micha@famreiser.ch>",
   "license": "MIT",
   "devDependencies": {
-    "@types/lodash": "^4.14.36",
+    "@types/lodash": "^4.14.37",
     "awesome-typescript-loader": "^2.2.4",
     "babel-core": "^6.17.0",
     "babel-preset-es2015": "^6.16.0",
+    "parallel-es-webpack-plugin": "0.0.4",
     "source-map-loader": "^0.1.5",
     "typescript": "^2.0.3",
     "webpack": "^2.1.0-beta.25",
@@ -22,6 +23,7 @@
   },
   "dependencies": {
     "babel-loader": "^6.2.5",
-    "parallel-es": "0.0.2"
+    "parallel-es": "0.0.6",
+    "simjs-random": "^0.2.6"
   }
 }
