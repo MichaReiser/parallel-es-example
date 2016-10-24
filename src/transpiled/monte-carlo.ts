@@ -1,7 +1,5 @@
 import parallel from "parallel-es";
 import {Dictionary} from "lodash";
-
-/* tslint:disable:no-var-requires */
 import Random from "simjs-random";
 
 export interface IProject {

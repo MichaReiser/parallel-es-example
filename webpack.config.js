@@ -1,16 +1,17 @@
 var path = require("path");
+var CommonsChunkPlugin = require("webpack").optimize.CommonsChunkPlugin;
 var ParallelEsPlugin = require("parallel-es-webpack-plugin");
 
-const FILE_NAME = "[name].js";
-
 module.exports = {
-    devtool: "#source-map",
+    devtool: "#inline-source-map",
     entry: {
-        examples: "./src/browser-example.ts"
+        examples: "./src/browser-example.ts",
+        "performance-measurements": "./src/performance-measurement.ts"
     },
     output: {
         path: path.resolve(__dirname, "dist"),
-        filename: FILE_NAME
+        pathinfo: true,
+        filename: "[name].js"
     },
     resolve: {
         extensions: [".webpack.js", ".web.js", ".ts", ".js"]
@@ -19,14 +20,28 @@ module.exports = {
         loaders: [
             {
                 test: /\.ts$/,
-                loader: "awesome-typescript-loader?useBabel"
-            }, {
+                exclude: path.resolve("./src/transpiled"),
+                loader: "babel!awesome-typescript-loader"
+            },
+            {
+                test: /\.ts$/,
+                include: path.resolve("./src/transpiled"),
+                loader: `babel?${JSON.stringify({"plugins": [ "parallel-es"] })}!awesome-typescript-loader`
+            },
+            {
                 test: /\.parallel-es6\.js/,
                 loader: "source-map"
             }
-        ]
+        ],
+        noParse: [ /benchmark\/benchmark\.js/ ]
+    },
+    devServer: {
+        stats: {
+            chunks: false
+        }
     },
     plugins: [
+        new CommonsChunkPlugin("common"),
         new ParallelEsPlugin({
             babelOptions: {
                 "presets": [

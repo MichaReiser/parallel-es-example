@@ -1,11 +1,12 @@
-import parallel from "parallel-es";
+import parallel, {IParallelOptions} from "parallel-es";
+import {IMandelbrotOptions} from "../dynamic/mandelbrot";
 
 interface IComplexNumber {
     i: number;
     real: number;
 }
 
-export function mandelbrot(imageWidth: number, imageHeight: number, iterations: number) {
+export function mandelbrot({ imageWidth, imageHeight, iterations }: IMandelbrotOptions, options?: IParallelOptions) {
     // X axis shows real numbers, y axis imaginary
     const min = { i: -1.2, real: -2.0 };
     const max = { i: 0, real: 1.0 };
@@ -35,7 +36,7 @@ export function mandelbrot(imageWidth: number, imageHeight: number, iterations: 
     }
 
     return parallel
-        .range(0, imageHeight, 1)
+        .range(0, imageHeight, 1, options)
         .map(y => {
             const line = new Uint8ClampedArray(imageWidth * 4);
             const cI = max.i - y * scalingFactor.i;

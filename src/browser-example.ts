@@ -1,9 +1,17 @@
-import {/*parallelMandelbrot,*/ syncMandelbrot, createMandelOptions} from "./mandelbrot";
-import {mandelbrot as mandelbrotInlined} from "./mandelbrot-inlined";
-import {syncMonteCarlo, parallelMonteCarlo, IProjectResult} from "./monte-carlo";
-import {syncKnightTours, parallelKnightTours} from "./knights-tour";
+import {mandelbrot as transpiledParallelMandelbrot} from "./transpiled/mandelbrot";
+import {parallelKnightTours as transpiledParallelKnightTour, syncKnightTours} from "./transpiled/knights-tour";
+import {parallelKnightTours as dynamicKnightTour} from "./dynamic/knights-tour";
+import {syncMandelbrot, createMandelOptions, parallelMandelbrot as dynamicParallelMandelbrot} from "./dynamic/mandelbrot";
+import {syncMonteCarlo as simJsMonteCarlo, parallelMonteCarlo as transpiledParallelMonteCarlo} from "./transpiled/monte-carlo";
+import {syncMonteCarlo as randomMonteCarlo, parallelMonteCarlo as dynamicParallelMonteCarlo, IProjectResult} from "./dynamic/monte-carlo";
 
 /* tslint:disable:no-console */
+
+let parallelMandelbrot = transpiledParallelMandelbrot;
+let parallelKnightTour = transpiledParallelKnightTour;
+let parallelMonteCarlo = transpiledParallelMonteCarlo;
+let syncMonteCarlo = simJsMonteCarlo;
+
 const mandelbrotCanvas = document.querySelector("#mandelbrot-canvas") as HTMLCanvasElement;
 const mandelbrotContext = mandelbrotCanvas.getContext("2d");
 const mandelbrotOptions = createMandelOptions(mandelbrotCanvas.width, mandelbrotCanvas.height, 10000);
@@ -40,10 +48,10 @@ document.querySelector("#mandelbrot-run-parallel").addEventListener("click", fun
     event.preventDefault();
 
     mandelbrotContext!.putImageData(mandelbrotContext!.createImageData(mandelbrotCanvas.width, mandelbrotCanvas.height), 0, 0);
-    // const maxValuesPerTask = parseInt((document.querySelector("#mandelbrot-values-per-task") as HTMLInputElement).value, 10);
+    const maxValuesPerTask = parseInt((document.querySelector("#mandelbrot-values-per-task") as HTMLInputElement).value, 10);
 
     console.time("mandelbrot-parallel");
-    mandelbrotInlined(mandelbrotOptions.imageWidth, mandelbrotOptions.imageHeight, mandelbrotOptions.iterations)
+    parallelMandelbrot(mandelbrotOptions, { maxValuesPerTask })
         .subscribe((lines, index, blockSize) => {
             for (let i = 0; i < lines.length; ++i) {
                 mandelbrotContext!.putImageData(new ImageData(lines[i], mandelbrotCanvas.width, 1), 0, index * blockSize + i);
@@ -119,9 +127,30 @@ document.querySelector("#knight-run-parallel").addEventListener("click", functio
     knightBoardResult.innerText = "Calculating...";
 
     console.time("knight-run-parallel");
-    parallelKnightTours({ x: 0, y: 0}, boardSize)
+    parallelKnightTour({ x: 0, y: 0}, boardSize)
         .then(solutions => {
             console.timeEnd("knight-run-parallel");
             knightBoardResult.innerText = `Found ${solutions} solutions for ${boardSize}x${boardSize} board`;
         }, (reason) => console.log(reason));
 });
+
+function onTranspiledChanged(transpiled: boolean) {
+    if (transpiled) {
+        parallelMandelbrot = transpiledParallelMandelbrot;
+        parallelKnightTour = transpiledParallelKnightTour;
+        syncMonteCarlo = simJsMonteCarlo;
+        parallelMonteCarlo = transpiledParallelMonteCarlo;
+    } else {
+        parallelMandelbrot = dynamicParallelMandelbrot;
+        parallelKnightTour = dynamicKnightTour;
+        syncMonteCarlo = randomMonteCarlo;
+        parallelMonteCarlo = dynamicParallelMonteCarlo;
+    }
+}
+
+document.querySelector("#transpiled-parallel")!.addEventListener("change", function (event: Event) {
+    const transpiled = (event.currentTarget as HTMLInputElement).checked;
+    onTranspiledChanged(transpiled);
+});
+
+onTranspiledChanged(true);
