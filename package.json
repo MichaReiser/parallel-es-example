@@ -7,7 +7,7 @@
   "scripts": {
     "build": "webpack",
     "start": "webpack-dev-server --progress --content-base src --hot",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"no tests specified\""
   },
   "author": "Micha Reiser <micha@famreiser.ch>",
   "license": "MIT",
