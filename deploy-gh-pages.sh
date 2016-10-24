@@ -26,12 +26,13 @@ git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
 cd ..
 
 # Clean out existing contents
-rm -rf $OUT_DIR/* || exit 0
+rm -rf $OUT_DIR/*.js || exit 0
+rm -rf $OUT_DIR/*.html || exit 0
 
 # Run our compile script
 npm run build
 
-cp -r ./dist $OUT_DIR/
+cp -r ./dist/ $OUT_DIR/
 cp ./src/*.html $OUT_DIR/
 
 # Now let's go have some fun with the cloned repo
