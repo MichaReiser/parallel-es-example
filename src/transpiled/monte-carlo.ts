@@ -1,5 +1,5 @@
 import parallel from "parallel-es";
-import {Dictionary} from "lodash";
+import {groupBy, Dictionary} from "lodash";
 import Random from "simjs-random";
 
 export interface IProject {
@@ -207,15 +207,9 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
     const projects = options.projects.sort((a, b) => a.startYear - b.startYear);
 
     // Group projects by startYear, use lodash groupBy instead
-    const projectsByStartYear: Dictionary<IProject[]> = {};
-    for (const project of projects) {
-        const arr = projectsByStartYear[project.startYear] = projectsByStartYear[project.startYear] || [];
-        arr.push(project);
-    }
-
+    const projectsByStartYear = groupBy(projects, project => project.startYear);
     const cashFlows = projectsToCashFlows(projectsByStartYear, options.numYears);
     const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows, options.investmentAmount, options.numYears);
-
     const numYears = projectsToSimulate.reduce((memo, project) => Math.max(memo, project.startYear), 0);
 
     return {

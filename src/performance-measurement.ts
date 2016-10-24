@@ -93,11 +93,11 @@ function addMandelbrotTests(suite: benchmark.Suite) {
 
     for (const maxValuesPerTask of [undefined, 1, 75, 150, 300, 600, 1200]) {
         const titleDynamic = `Mandelbrot ${mandelbrotOptions.imageWidth}x${mandelbrotOptions.imageHeight}, ${mandelbrotOptions.iterations} parallel-dynamic (${maxValuesPerTask})`;
-        const titleTranspiled = `Mandelbrot ${mandelbrotOptions.imageWidth}x${mandelbrotOptions.imageHeight}, ${mandelbrotOptions.iterations} parallel-transpiled (${maxValuesPerTask})`;
         suite.add(titleDynamic, function (deferred: Deferred) {
             return dynamicParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }).then(() => deferred.resolve(), () => deferred.reject());
         }, { defer: true });
 
+        const titleTranspiled = `Mandelbrot ${mandelbrotOptions.imageWidth}x${mandelbrotOptions.imageHeight}, ${mandelbrotOptions.iterations} parallel-transpiled (${maxValuesPerTask})`;
         suite.add(titleTranspiled, function (deferred: Deferred) {
             return transpiledParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }).then(() => deferred.resolve(), () => deferred.reject());
         }, { defer: true });
