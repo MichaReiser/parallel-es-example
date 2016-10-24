@@ -1,5 +1,5 @@
 var path = require("path");
-var CommonsChunkPlugin = require("webpack").optimize.CommonsChunkPlugin;
+var webpack = require("webpack");
 var ParallelEsPlugin = require("parallel-es-webpack-plugin");
 
 module.exports = {
@@ -41,7 +41,8 @@ module.exports = {
         }
     },
     plugins: [
-        new CommonsChunkPlugin("common"),
+        new webpack.optimize.CommonsChunkPlugin("common"),
+        new webpack.optimize.DedupePlugin(),
         new ParallelEsPlugin({
             babelOptions: {
                 "presets": [
