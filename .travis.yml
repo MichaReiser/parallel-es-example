@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+- stable
+
+after_success:
+- bash ./deploy-gh-pages.sh
+
+env:
+  global:
+  - ENCRYPTION_LABEL="566579d55c2c"
+  - COMMIT_AUTHOR_EMAIL="micha@famreiser.ch"
