@@ -45,26 +45,28 @@ function addKnightBoardTests(suite: benchmark.Suite) {
     }
 }
 
-function addMonteCarloTest(suite: benchmark.Suite, options: IMonteCarloSimulationOptions, numberOfProjects: number) {
+function addMonteCarloTest(suite: benchmark.Suite, options: IMonteCarloSimulationOptions & {numberOfProjects: number, numRuns: number}) {
     const runOptions = Object.assign(options, {
-        projects: createProjects(numberOfProjects)
+        projects: createProjects(options.numberOfProjects)
     });
 
-    suite.add(`sync: Monte Carlo ${numberOfProjects} Math.random`, function () {
+    const configName = `(projects: ${options.numberOfProjects}, runs: ${options.numRuns.toLocaleString()})`;
+
+    suite.add(`sync: Monte Carlo Math.random ${configName}`, function () {
         randomMonteCarlo(options);
     });
 
-    suite.add(`parallel-dynamic: Monte Carlo ${numberOfProjects} Math.random`,
+    suite.add(`parallel-dynamic: Monte Carlo Math.random ${configName}`,
         function (deferred: Deferred) {
             return randomParallelMonteCarlo(runOptions).then(() => deferred.resolve(), () => deferred.reject());
         }, { defer: true }
     );
 
-    suite.add(`sync: Monte Carlo ${numberOfProjects} simjs`, function () {
+    suite.add(`sync: Monte Carlo simjs ${configName}`, function () {
         simJsMonteCarlo(options);
     });
 
-    suite.add(`parallel-transpiled: Monte Carlo ${numberOfProjects} simjs`,
+    suite.add(`parallel-transpiled: Monte Carlo simjs ${configName}`,
         function (deferred: Deferred) {
             return simJsParallelMonteCarlo(runOptions).then(() => deferred.resolve(), () => deferred.reject());
         }, { defer: true }
@@ -74,15 +76,18 @@ function addMonteCarloTest(suite: benchmark.Suite, options: IMonteCarloSimulatio
 function addMonteCarloTests(suite: benchmark.Suite) {
     const monteCarloOptions = {
         investmentAmount: 620000,
-        numRuns: 10000,
+        numRuns: 100000,
         numYears: 15,
         performance: 0.0340000,
         seed: 10,
         volatility: 0.0896000
     };
 
-    for (const numberOfProjects of  [1, 2, 4, 6, 8, 10, 15]) {
-        addMonteCarloTest(suite, monteCarloOptions, numberOfProjects);
+    for (const numberOfProjects of  [1, 4, 8, 16]) {
+        for (const numRuns of [10 ** 4, 10 ** 5, 10 ** 6]) {
+            const options = Object.assign({}, monteCarloOptions, { numberOfProjects, numRuns });
+            addMonteCarloTest(suite, options);
+        }
     }
 }
 
@@ -163,10 +168,10 @@ function initResultTable(event: benchmark.Event) {
     const body = outputTable.createTBody();
     (event.currentTarget as Array<benchmark.Options>).forEach(suite => {
         const row = body.insertRow();
-        const [set, name] = suite.name!.split(":");
+        const [set, ...nameParts] = suite.name!.split(":");
 
         row.insertCell().textContent = set;
-        row.insertCell().textContent = name;
+        row.insertCell().textContent = nameParts.join(":");
         const columns = (outputTable.tHead.rows[0] as HTMLTableRowElement).cells.length;
         for (let i = 0; i < columns; ++i) {
             row.insertCell();
@@ -180,14 +185,14 @@ function appendTestResults(event: benchmark.Event) {
     const index = (event.currentTarget as Array<benchmark>).indexOf(benchmark);
     const row = body.rows[index] as HTMLTableRowElement;
 
-    row.cells[1].textContent = benchmark.stats.deviation.toFixed(4);
-    row.cells[2].textContent = benchmark.stats.mean.toFixed(4);
-    row.cells[3].textContent = benchmark.stats.moe.toFixed(4);
-    row.cells[4].textContent = benchmark.stats.rme.toFixed(4);
-    row.cells[5].textContent = benchmark.stats.sem.toFixed(4);
-    row.cells[6].textContent = benchmark.stats.variance.toFixed(4);
-    row.cells[7].textContent = benchmark.stats.sample.length.toFixed(0);
-    row.cells[8].textContent = benchmark.hz.toFixed(4);
+    row.cells[2].textContent = benchmark.stats.deviation.toFixed(4);
+    row.cells[3].textContent = benchmark.stats.mean.toFixed(4);
+    row.cells[4].textContent = benchmark.stats.moe.toFixed(4);
+    row.cells[5].textContent = benchmark.stats.rme.toFixed(4);
+    row.cells[6].textContent = benchmark.stats.sem.toFixed(4);
+    row.cells[7].textContent = benchmark.stats.variance.toFixed(4);
+    row.cells[8].textContent = benchmark.stats.sample.length.toFixed(0);
+    row.cells[9].textContent = benchmark.hz.toFixed(4);
 }
 
 function createProjects(count: number): IProject[] {
