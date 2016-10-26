@@ -42,7 +42,6 @@ module.exports = {
     },
     plugins: [
         new webpack.optimize.CommonsChunkPlugin("common"),
-        new webpack.optimize.DedupePlugin(),
         new ParallelEsPlugin({
             babelOptions: {
                 "presets": [

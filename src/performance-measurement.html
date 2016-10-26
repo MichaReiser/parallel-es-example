@@ -14,6 +14,25 @@
 <div class="container-fluid">
 
 	<form action="#">
+		<h3>Test Sets</h3>
+		<div class="form-check">
+			<label for="sync" class="form-check-label">
+				<input type="checkbox" class="form-check-input" id="sync" checked="checked" /> Sync
+			</label>
+		</div>
+
+		<div class="form-check">
+			<label for="parallel-es-dynamic" class="form-check-label">
+				<input type="checkbox" class="form-check-input" id="parallel-es-dynamic" checked="checked" /> Parallel-Dynamic
+			</label>
+		</div>
+
+		<div class="form-check">
+			<label for="parallel-es-transpiled" class="form-check-label">
+				<input type="checkbox" class="form-check-input" id="parallel-es-transpiled" checked="checked" /> Parallel-Transpiled
+			</label>
+		</div>
+
 		<h3>Knight Runner</h3>
 		<div class="form-check">
 			<label for="knight-runner-6-6" class="form-check-label">
@@ -45,6 +64,7 @@
 	<table id="output-table" class="table table-striped table-sm">
 		<thead>
 			<tr>
+				<th>Set</th>
 				<th>Test</th>
 				<th>Standard Deviation</th>
 				<th>Mean (s)</th>

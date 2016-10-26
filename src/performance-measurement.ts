@@ -17,6 +17,11 @@ let Benchmark = (benchmark as any).runInContext({ _ });
 const runButton = document.querySelector("#run") as HTMLInputElement;
 const outputTable = document.querySelector("#output-table") as HTMLTableElement;
 const jsonOutputField = document.querySelector("#json-output") as HTMLElement;
+
+const syncCheckbox = document.querySelector("#sync") as HTMLInputElement;
+const parallelDynamicCheckbox = document.querySelector("#parallel-es-dynamic") as HTMLInputElement;
+const parallelTranspiledCheckbox = document.querySelector("#parallel-es-transpiled") as HTMLInputElement;
+
 const knightRunner6x6 = document.querySelector("#knight-runner-6-6") as HTMLInputElement;
 
 type Deferred = { resolve: () => void, reject: () => void };
@@ -25,15 +30,16 @@ function addKnightBoardTests(suite: benchmark.Suite) {
     const boardSizes = knightRunner6x6.checked ? [5, 6] : [5];
 
     for (const boardSize of boardSizes) {
-        suite.add(`Knights Tour (${boardSize}x${boardSize}) sync`, function () {
+        const title = `Knights Tour (${boardSize}x${boardSize})`;
+        suite.add(`sync: ${title}`, function () {
             syncKnightTours({x: 0, y: 0}, boardSize);
         });
 
-        suite.add(`Knights Tour (${boardSize}x${boardSize}) parallel-dynamic`, function (deferred: Deferred) {
+        suite.add(`parallel-dynamic: ${title}`, function (deferred: Deferred) {
             dynamicParallelKnightTours({x: 0, y: 0}, boardSize).then(() => deferred.resolve(), () => deferred.reject());
         }, { defer: true });
 
-        suite.add(`Knights Tour (${boardSize}x${boardSize}) parallel-transpiled`, function (deferred: Deferred) {
+        suite.add(`parallel-transpiled: ${title}`, function (deferred: Deferred) {
             transpiledParallelKnightTours({x: 0, y: 0}, boardSize).then(() => deferred.resolve(), () => deferred.reject());
         }, { defer: true });
     }
@@ -44,21 +50,21 @@ function addMonteCarloTest(suite: benchmark.Suite, options: IMonteCarloSimulatio
         projects: createProjects(numberOfProjects)
     });
 
-    suite.add(`Montecarlo ${numberOfProjects} Math.random`, function () {
+    suite.add(`sync: Monte Carlo ${numberOfProjects} Math.random`, function () {
         randomMonteCarlo(options);
     });
 
-    suite.add(`Monte carlo ${numberOfProjects} Math.random-parallel`,
+    suite.add(`parallel-dynamic: Monte Carlo ${numberOfProjects} Math.random`,
         function (deferred: Deferred) {
             return randomParallelMonteCarlo(runOptions).then(() => deferred.resolve(), () => deferred.reject());
         }, { defer: true }
     );
 
-    suite.add(`Montecarlo ${numberOfProjects} simjs sync`, function () {
+    suite.add(`sync: Monte Carlo ${numberOfProjects} simjs`, function () {
         simJsMonteCarlo(options);
     });
 
-    suite.add(`Monte carlo ${numberOfProjects} simjs-parallel`,
+    suite.add(`parallel-transpiled: Monte Carlo ${numberOfProjects} simjs`,
         function (deferred: Deferred) {
             return simJsParallelMonteCarlo(runOptions).then(() => deferred.resolve(), () => deferred.reject());
         }, { defer: true }
@@ -87,35 +93,41 @@ function addMandelbrotTests(suite: benchmark.Suite) {
 
     const mandelbrotOptions = createMandelOptions(mandelbrotWidth, mandelbrotHeight, mandelbrotIterations);
 
-    suite.add(`Mandelbrot ${mandelbrotWidth}x${mandelbrotHeight}, ${mandelbrotIterations} sync`, function () {
+    suite.add(`sync: Mandelbrot ${mandelbrotWidth}x${mandelbrotHeight}, ${mandelbrotIterations}`, function () {
         syncMandelbrot(mandelbrotOptions, () => undefined);
     });
 
     for (const maxValuesPerTask of [undefined, 1, 75, 150, 300, 600, 1200]) {
-        const titleDynamic = `Mandelbrot ${mandelbrotOptions.imageWidth}x${mandelbrotOptions.imageHeight}, ${mandelbrotOptions.iterations} parallel-dynamic (${maxValuesPerTask})`;
-        suite.add(titleDynamic, function (deferred: Deferred) {
+        const title = `Mandelbrot ${mandelbrotOptions.imageWidth}x${mandelbrotOptions.imageHeight}, ${mandelbrotOptions.iterations} (${maxValuesPerTask})`;
+        suite.add(`parallel-dynamic: ${title}`, function (deferred: Deferred) {
             return dynamicParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }).then(() => deferred.resolve(), () => deferred.reject());
         }, { defer: true });
 
-        const titleTranspiled = `Mandelbrot ${mandelbrotOptions.imageWidth}x${mandelbrotOptions.imageHeight}, ${mandelbrotOptions.iterations} parallel-transpiled (${maxValuesPerTask})`;
-        suite.add(titleTranspiled, function (deferred: Deferred) {
+        suite.add(`parallel-transpiled: ${title}`, function (deferred: Deferred) {
             return transpiledParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }).then(() => deferred.resolve(), () => deferred.reject());
         }, { defer: true });
     }
 }
 
 function measure() {
-    const suite = new Benchmark.Suite();
+    const allTestsSuite = new Benchmark.Suite();
 
-    addMonteCarloTests(suite);
-    addMandelbrotTests(suite);
-    addKnightBoardTests(suite);
+    addMonteCarloTests(allTestsSuite);
+    addMandelbrotTests(allTestsSuite);
+    addKnightBoardTests(allTestsSuite);
+
+    const suite = allTestsSuite.filter((benchmark: benchmark  & {name: string }) => {
+        return syncCheckbox.checked && benchmark.name.startsWith("sync") ||
+            parallelDynamicCheckbox.checked && benchmark.name.startsWith("parallel-dynamic") ||
+            parallelTranspiledCheckbox.checked && benchmark.name.startsWith("parallel-transpiled");
+    });
 
     suite.on("cycle", function (event: benchmark.Event) {
         appendTestResults(event);
     });
+
     suite.on("complete", function (event: benchmark.Event) {
-        const benchmarks = (event.currentTarget as Array<benchmark>).map((benchmark: benchmark & {name: string }) => {
+        const benchmarks = (event.currentTarget as benchmark.Suite).map((benchmark: benchmark & {name: string }) => {
             return {
                 info: benchmark.toString,
                 name: benchmark.name,
@@ -127,6 +139,7 @@ function measure() {
         jsonOutputField.textContent = JSON.stringify({ benchmarks, platform}, undefined, "    ");
         runButton.disabled = false;
     });
+
     suite.on("start", initResultTable);
 
     suite.run({async: true });
@@ -150,7 +163,10 @@ function initResultTable(event: benchmark.Event) {
     const body = outputTable.createTBody();
     (event.currentTarget as Array<benchmark.Options>).forEach(suite => {
         const row = body.insertRow();
-        row.insertCell().textContent = suite.name!;
+        const [set, name] = suite.name!.split(":");
+
+        row.insertCell().textContent = set;
+        row.insertCell().textContent = name;
         const columns = (outputTable.tHead.rows[0] as HTMLTableRowElement).cells.length;
         for (let i = 0; i < columns; ++i) {
             row.insertCell();
