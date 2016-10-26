@@ -36,7 +36,7 @@ export function createMandelOptions(imageWidth: number, imageHeight: number, ite
 }
 
 export function computeMandelbrotLine(y: number, options: IMandelbrotOptions): Uint8ClampedArray {
-    function calculateZ(c: IComplexNumber): { z: IComplexNumber, n: number } {
+    function calculateZ(c: IComplexNumber): number {
         const z = { i: c.i, real: c.real };
         let n = 0;
 
@@ -51,7 +51,7 @@ export function computeMandelbrotLine(y: number, options: IMandelbrotOptions): U
             z.real = z.real ** 2 - zI ** 2 + c.real;
         }
 
-        return { z, n };
+        return n;
     }
 
     const line = new Uint8ClampedArray(options.imageWidth * 4);
@@ -63,7 +63,7 @@ export function computeMandelbrotLine(y: number, options: IMandelbrotOptions): U
             real: options.min.real + x * options.scalingFactor.real
         };
 
-        const { n } = calculateZ(c);
+        const n = calculateZ(c);
         const base = x * 4;
         /* tslint:disable:no-bitwise */
         line[base] = n & 0xFF;

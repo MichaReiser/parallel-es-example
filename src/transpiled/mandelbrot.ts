@@ -17,7 +17,7 @@ export function mandelbrot({ imageWidth, imageHeight, iterations }: IMandelbrotO
         real: (max.real - min.real) / (imageWidth - 1)
     };
 
-    function calculateZ(c: IComplexNumber): { z: IComplexNumber, n: number } {
+    function calculateZ(c: IComplexNumber): number {
         const z = { i: c.i, real: c.real };
         let n = 0;
 
@@ -32,7 +32,7 @@ export function mandelbrot({ imageWidth, imageHeight, iterations }: IMandelbrotO
             z.real = z.real * z.real - zI * zI + c.real;
         }
 
-        return { n, z };
+        return n;
     }
 
     return parallel
@@ -47,7 +47,7 @@ export function mandelbrot({ imageWidth, imageHeight, iterations }: IMandelbrotO
                     real: min.real + x * scalingFactor.real
                 };
 
-                const { n } = calculateZ(c);
+                const n = calculateZ(c);
                 const base = x * 4;
                 /* tslint:disable:no-bitwise */
                 line[base] = n & 0xFF;
