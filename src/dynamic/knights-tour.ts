@@ -79,7 +79,8 @@ export function parallelKnightTours(start: ICoordinate, boardSize: number, optio
         ];
         const result: ICoordinate[] = [];
 
-        for (const move of moves) {
+        for (let i = 0; i < moves.length; ++i) {
+            const move = moves[i];
             const successor = {x: coordinate.x + move.x, y: coordinate.y + move.y};
             const accessible = successor.x >= 0 && successor.y >= 0 && successor.x < boardSize && successor.y < boardSize &&
                 (successor.x !== start.x || successor.y !== start.y) && (successor.x !== coordinate.x && successor.y !== coordinate.y);
@@ -101,18 +102,9 @@ export function parallelKnightTours(start: ICoordinate, boardSize: number, optio
         return result;
     }
 
-    let total = 0;
-    let startTime = performance.now();
     return parallel
         .from(computeStartFields(), options)
         .inEnvironment(createEnvironment, boardSize)
         .map(knightTours)
-        .reduce(0, (memo, count) => memo + count)
-        .subscribe(subResults => {
-            for (const tours of subResults) {
-                total += tours;
-            }
-            /* tslint:disable:no-console */
-            console.log(`${total / (performance.now() - startTime) * 1000} results per second`);
-        });
+        .reduce(0, (memo, count) => memo + count);
 }
