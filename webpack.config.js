@@ -13,9 +13,6 @@ module.exports = {
         pathinfo: true,
         filename: "[name].js"
     },
-    resolve: {
-        extensions: [".webpack.js", ".web.js", ".ts", ".js"]
-    },
     module: {
         loaders: [
             {
@@ -34,6 +31,12 @@ module.exports = {
             }
         ],
         noParse: [ /benchmark\/benchmark\.js/ ]
+    },
+    resolve: {
+        extensions: [".webpack.js", ".web.js", ".ts", ".js"],
+        modules:[
+              path.join(__dirname, "node_modules")
+        ]
     },
     devServer: {
         stats: {
