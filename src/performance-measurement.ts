@@ -4,12 +4,17 @@ import * as benchmark from "benchmark";
 const platform = require("platform");
 /* tslint:enable:no-var-requires */
 
-import {createMandelOptions, parallelMandelbrot as dynamicParallelMandelbrot, syncMandelbrot} from "./dynamic/mandelbrot";
 import {mandelbrot as transpiledParallelMandelbrot} from "./transpiled/mandelbrot";
 import {syncKnightTours, parallelKnightTours as transpiledParallelKnightTours} from "./transpiled/knights-tour";
-import {parallelKnightTours as dynamicParallelKnightTours} from "./dynamic/knights-tour";
-import {IMonteCarloSimulationOptions, syncMonteCarlo as randomMonteCarlo, parallelMonteCarlo as randomParallelMonteCarlo, IProject} from "./dynamic/monte-carlo";
 import {syncMonteCarlo as simJsMonteCarlo, parallelMonteCarlo as simJsParallelMonteCarlo} from "./transpiled/monte-carlo";
+
+import {parallelKnightTours as dynamicParallelKnightTours} from "./dynamic/knights-tour";
+import {createMandelOptions, parallelMandelbrot as dynamicParallelMandelbrot, syncMandelbrot} from "./dynamic/mandelbrot";
+import {IMonteCarloSimulationOptions, syncMonteCarlo as randomMonteCarlo, parallelMonteCarlo as randomParallelMonteCarlo, IProject} from "./dynamic/monte-carlo";
+
+import {parallelJSMandelbrot} from "./paralleljs/mandelbrot";
+import {parallelJSMonteCarlo} from "./paralleljs/monte-carlo";
+import {parallelJSKnightTours} from "./paralleljs/knights-tour";
 
 let Benchmark = (benchmark as any).runInContext({ _ });
 (window as any).Benchmark = Benchmark;
@@ -18,13 +23,11 @@ const runButton = document.querySelector("#run") as HTMLInputElement;
 const outputTable = document.querySelector("#output-table") as HTMLTableElement;
 const jsonOutputField = document.querySelector("#json-output") as HTMLElement;
 
-const syncCheckbox = document.querySelector("#sync") as HTMLInputElement;
-const parallelDynamicCheckbox = document.querySelector("#parallel-es-dynamic") as HTMLInputElement;
-const parallelTranspiledCheckbox = document.querySelector("#parallel-es-transpiled") as HTMLInputElement;
+const setCheckboxes = document.querySelectorAll('[id*="-set"]') as NodeListOf<HTMLInputElement>;
 
 const knightRunner6x6 = document.querySelector("#knight-runner-6-6") as HTMLInputElement;
 
-type Deferred = { resolve: () => void, reject: () => void };
+type Deferred = { resolve: () => void };
 
 function addKnightBoardTests(suite: benchmark.Suite) {
     const boardSizes = knightRunner6x6.checked ? [5, 6] : [5];
@@ -36,11 +39,15 @@ function addKnightBoardTests(suite: benchmark.Suite) {
         });
 
         suite.add(`parallel-dynamic: ${title}`, function (deferred: Deferred) {
-            dynamicParallelKnightTours({x: 0, y: 0}, boardSize).then(() => deferred.resolve(), () => deferred.reject());
+            dynamicParallelKnightTours({x: 0, y: 0}, boardSize).then(() => deferred.resolve(), () => deferred.resolve());
         }, { defer: true });
 
         suite.add(`parallel-transpiled: ${title}`, function (deferred: Deferred) {
-            transpiledParallelKnightTours({x: 0, y: 0}, boardSize).then(() => deferred.resolve(), () => deferred.reject());
+            transpiledParallelKnightTours({x: 0, y: 0}, boardSize).then(() => deferred.resolve(), () => deferred.resolve());
+        }, { defer: true });
+
+        suite.add(`paralleljs: ${title}`, function (deferred: Deferred) {
+            parallelJSKnightTours({x: 0, y: 0}, boardSize).then((result) => { console.log(result); deferred.resolve() }, () => deferred.resolve());
         }, { defer: true });
     }
 }
@@ -58,7 +65,7 @@ function addMonteCarloTest(suite: benchmark.Suite, options: IMonteCarloSimulatio
 
     suite.add(`parallel-dynamic: Monte Carlo Math.random ${configName}`,
         function (deferred: Deferred) {
-            return randomParallelMonteCarlo(runOptions).then(() => deferred.resolve(), () => deferred.reject());
+            return randomParallelMonteCarlo(runOptions).then(() => deferred.resolve(), () => deferred.resolve());
         }, { defer: true }
     );
 
@@ -68,9 +75,16 @@ function addMonteCarloTest(suite: benchmark.Suite, options: IMonteCarloSimulatio
 
     suite.add(`parallel-transpiled: Monte Carlo simjs ${configName}`,
         function (deferred: Deferred) {
-            return simJsParallelMonteCarlo(runOptions).then(() => deferred.resolve(), () => deferred.reject());
+            return simJsParallelMonteCarlo(runOptions).then(() => deferred.resolve(), () => deferred.resolve());
         }, { defer: true }
     );
+
+    suite.add(`paralleljs: Monte Carlo simjs ${configName}`, function (deferred: Deferred) {
+        parallelJSMonteCarlo(runOptions).then(() => deferred.resolve(), (error: any) => {
+            console.error("Test failed", error);
+            deferred.resolve()
+        });
+    }, { defer: true })
 }
 
 function addMonteCarloTests(suite: benchmark.Suite) {
@@ -105,13 +119,20 @@ function addMandelbrotTests(suite: benchmark.Suite) {
     for (const maxValuesPerTask of [undefined, 1, 75, 150, 300, 600, 1200]) {
         const title = `Mandelbrot ${mandelbrotOptions.imageWidth}x${mandelbrotOptions.imageHeight}, ${mandelbrotOptions.iterations} (${maxValuesPerTask})`;
         suite.add(`parallel-dynamic: ${title}`, function (deferred: Deferred) {
-            return dynamicParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }).then(() => deferred.resolve(), () => deferred.reject());
+            return dynamicParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }).then(() => deferred.resolve(), () => deferred.resolve());
         }, { defer: true });
 
         suite.add(`parallel-transpiled: ${title}`, function (deferred: Deferred) {
-            return transpiledParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }).then(() => deferred.resolve(), () => deferred.reject());
+            return transpiledParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }).then(() => deferred.resolve(), () => deferred.resolve());
         }, { defer: true });
     }
+
+    suite.add(`paralleljs: Mandelbrot ${mandelbrotWidth}x${mandelbrotHeight}, ${mandelbrotIterations}`, function (deferred: Deferred) {
+        parallelJSMandelbrot(mandelbrotOptions).then(() => deferred.resolve(), (error: any) => {
+            console.error("Test failed", error);
+            deferred.resolve()
+        });
+    }, { defer: true });
 }
 
 function measure() {
@@ -122,9 +143,16 @@ function measure() {
     addKnightBoardTests(allTestsSuite);
 
     const suite = allTestsSuite.filter((benchmark: benchmark  & {name: string }) => {
-        return syncCheckbox.checked && benchmark.name.startsWith("sync") ||
-            parallelDynamicCheckbox.checked && benchmark.name.startsWith("parallel-dynamic") ||
-            parallelTranspiledCheckbox.checked && benchmark.name.startsWith("parallel-transpiled");
+        for (let i = 0; i < setCheckboxes.length; ++i) {
+            const checkbox = setCheckboxes[i];
+            const parts = checkbox.id.split("-");
+            const name = parts.slice(0, parts.length - 1).join("-");
+
+            if (checkbox.checked && benchmark.name.startsWith(name)) {
+                return true;
+            }
+        }
+        return false;
     });
 
     suite.on("cycle", function (event: benchmark.Event) {

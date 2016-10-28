@@ -30,7 +30,10 @@ module.exports = {
                 loader: "source-map"
             }
         ],
-        noParse: [ /benchmark\/benchmark\.js/ ]
+        noParse: [
+            /benchmark\/benchmark\.js/,
+            /paralleljs\/lib\/parallel\.js/
+        ]
     },
     resolve: {
         extensions: [".webpack.js", ".web.js", ".ts", ".js"],
