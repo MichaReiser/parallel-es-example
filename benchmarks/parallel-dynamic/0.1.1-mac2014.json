@@ -497,7 +497,7 @@
             }
         },
         {
-            "name": "parallel-dynamic: Mandelbrot 10000x10000, 1000 (undefined)",
+            "name": "parallel-dynamic: Mandelbrot 10000x10000, 1000",
             "stats": {
                 "moe": 0.06914413634141316,
                 "rme": 0.3183724852261403,

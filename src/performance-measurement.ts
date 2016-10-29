@@ -117,7 +117,11 @@ function addMandelbrotTests(suite: benchmark.Suite) {
     });
 
     for (const maxValuesPerTask of [undefined, 1, 75, 150, 300, 600, 1200]) {
-        const title = `Mandelbrot ${mandelbrotOptions.imageWidth}x${mandelbrotOptions.imageHeight}, ${mandelbrotOptions.iterations} (${maxValuesPerTask})`;
+        let title = `Mandelbrot ${mandelbrotOptions.imageWidth}x${mandelbrotOptions.imageHeight}, ${mandelbrotOptions.iterations}`;
+        if (maxValuesPerTask) {
+            title += ` (${maxValuesPerTask})`;
+        }
+
         suite.add(`parallel-dynamic: ${title}`, function (deferred: Deferred) {
             return dynamicParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }).then(() => deferred.resolve(), () => deferred.resolve());
         }, { defer: true });

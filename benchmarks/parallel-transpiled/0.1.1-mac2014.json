@@ -448,7 +448,7 @@
             }
         },
         {
-            "name": "parallel-transpiled: Mandelbrot 10000x10000, 1000 (undefined)",
+            "name": "parallel-transpiled: Mandelbrot 10000x10000, 1000",
             "stats": {
                 "moe": 3.4287472020373633,
                 "rme": 9.87349022091688,
