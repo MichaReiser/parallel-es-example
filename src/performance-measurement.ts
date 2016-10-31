@@ -29,6 +29,22 @@ const knightRunner6x6 = document.querySelector("#knight-runner-6-6") as HTMLInpu
 
 type Deferred = { resolve: () => void };
 
+function addAsyncTest(suite: benchmark.Suite, title: string, fn: (this: undefined) => PromiseLike<any>) {
+    suite.add(title, function (this: benchmark, deferred: Deferred) {
+        const benchmark = this;
+        fn.apply(undefined, [])
+            .then(function () { deferred.resolve() },
+                function (error: any) {
+                    console.error(error);
+                    benchmark.error = error;
+                    deferred.resolve();
+                }
+            )
+    }, {
+        defer: true
+    })
+}
+
 function addKnightBoardTests(suite: benchmark.Suite) {
     const boardSizes = knightRunner6x6.checked ? [5, 6] : [5];
 
@@ -38,17 +54,9 @@ function addKnightBoardTests(suite: benchmark.Suite) {
             syncKnightTours({x: 0, y: 0}, boardSize);
         });
 
-        suite.add(`parallel-dynamic: ${title}`, function (deferred: Deferred) {
-            dynamicParallelKnightTours({x: 0, y: 0}, boardSize).then(() => deferred.resolve(), () => deferred.resolve());
-        }, { defer: true });
-
-        suite.add(`parallel-transpiled: ${title}`, function (deferred: Deferred) {
-            transpiledParallelKnightTours({x: 0, y: 0}, boardSize).then(() => deferred.resolve(), () => deferred.resolve());
-        }, { defer: true });
-
-        suite.add(`paralleljs: ${title}`, function (deferred: Deferred) {
-            parallelJSKnightTours({x: 0, y: 0}, boardSize).then((result) => { console.log(result); deferred.resolve() }, () => deferred.resolve());
-        }, { defer: true });
+        addAsyncTest(suite, `parallel-dynamic: ${title}`, () => dynamicParallelKnightTours({x: 0, y: 0}, boardSize));
+        addAsyncTest(suite, `parallel-transpiled: ${title}`, () => transpiledParallelKnightTours({x: 0, y: 0}, boardSize));
+        addAsyncTest(suite, `paralleljs: ${title}`, () => parallelJSKnightTours({x: 0, y: 0}, boardSize));
     }
 }
 
@@ -63,28 +71,13 @@ function addMonteCarloTest(suite: benchmark.Suite, options: IMonteCarloSimulatio
         randomMonteCarlo(options);
     });
 
-    suite.add(`parallel-dynamic: Monte Carlo Math.random ${configName}`,
-        function (deferred: Deferred) {
-            return randomParallelMonteCarlo(runOptions).then(() => deferred.resolve(), () => deferred.resolve());
-        }, { defer: true }
-    );
-
+    addAsyncTest(suite, `parallel-dynamic: Monte Carlo Math.random ${configName}`, () => randomParallelMonteCarlo(runOptions));
     suite.add(`sync: Monte Carlo simjs ${configName}`, function () {
         simJsMonteCarlo(options);
     });
 
-    suite.add(`parallel-transpiled: Monte Carlo simjs ${configName}`,
-        function (deferred: Deferred) {
-            return simJsParallelMonteCarlo(runOptions).then(() => deferred.resolve(), () => deferred.resolve());
-        }, { defer: true }
-    );
-
-    suite.add(`paralleljs: Monte Carlo simjs ${configName}`, function (deferred: Deferred) {
-        parallelJSMonteCarlo(runOptions).then(() => deferred.resolve(), (error: any) => {
-            console.error("Test failed", error);
-            deferred.resolve()
-        });
-    }, { defer: true })
+    addAsyncTest(suite, `parallel-transpiled: Monte Carlo simjs ${configName}`, () => simJsParallelMonteCarlo(runOptions));
+    addAsyncTest(suite, `paralleljs: Monte Carlo simjs ${configName}`, () => parallelJSMonteCarlo(runOptions));
 }
 
 function addMonteCarloTests(suite: benchmark.Suite) {
@@ -97,8 +90,8 @@ function addMonteCarloTests(suite: benchmark.Suite) {
         volatility: 0.0896000
     };
 
-    for (const numberOfProjects of  [1, 4, 8, 16]) {
-        for (const numRuns of [10 ** 4, 10 ** 5, 10 ** 6]) {
+    for (const numRuns of [10 ** 4, 10 ** 5, 10**6]) {
+        for (const numberOfProjects of  [1, 4, 8, 16]) {
             const options = Object.assign({}, monteCarloOptions, { numberOfProjects, numRuns });
             addMonteCarloTest(suite, options);
         }
@@ -122,21 +115,11 @@ function addMandelbrotTests(suite: benchmark.Suite) {
             title += ` (${maxValuesPerTask})`;
         }
 
-        suite.add(`parallel-dynamic: ${title}`, function (deferred: Deferred) {
-            return dynamicParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }).then(() => deferred.resolve(), () => deferred.resolve());
-        }, { defer: true });
-
-        suite.add(`parallel-transpiled: ${title}`, function (deferred: Deferred) {
-            return transpiledParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }).then(() => deferred.resolve(), () => deferred.resolve());
-        }, { defer: true });
+        addAsyncTest(suite, `parallel-dynamic: ${title}`, () => dynamicParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }));
+        addAsyncTest(suite, `parallel-transpiled: ${title}`, () => transpiledParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }));
     }
 
-    suite.add(`paralleljs: Mandelbrot ${mandelbrotWidth}x${mandelbrotHeight}, ${mandelbrotIterations}`, function (deferred: Deferred) {
-        parallelJSMandelbrot(mandelbrotOptions).then(() => deferred.resolve(), (error: any) => {
-            console.error("Test failed", error);
-            deferred.resolve()
-        });
-    }, { defer: true });
+    addAsyncTest(suite, `paralleljs: Mandelbrot ${mandelbrotWidth}x${mandelbrotHeight}, ${mandelbrotIterations}`, () => parallelJSMandelbrot(mandelbrotOptions));
 }
 
 function measure() {
@@ -157,6 +140,16 @@ function measure() {
             }
         }
         return false;
+    });
+
+    suite.forEach((benchmark: benchmark) => {
+        const index = suite.indexOf(benchmark);
+
+        benchmark.on("cycle", () => {
+            const body = outputTable.tBodies[0] as HTMLTableSectionElement;
+            const row = body.rows[index] as HTMLTableRowElement;
+            row.cells[2].textContent = (benchmark.stats.sample.length + 1) + "";
+        });
     });
 
     suite.on("cycle", function (event: benchmark.Event) {
@@ -217,14 +210,14 @@ function appendTestResults(event: benchmark.Event) {
     const index = (event.currentTarget as Array<benchmark>).indexOf(benchmark);
     const row = body.rows[index] as HTMLTableRowElement;
 
-    row.cells[2].textContent = benchmark.stats.deviation.toFixed(4);
-    row.cells[3].textContent = benchmark.stats.mean.toFixed(4);
-    row.cells[4].textContent = benchmark.stats.moe.toFixed(4);
-    row.cells[5].textContent = benchmark.stats.rme.toFixed(4);
-    row.cells[6].textContent = benchmark.stats.sem.toFixed(4);
-    row.cells[7].textContent = benchmark.stats.variance.toFixed(4);
-    row.cells[8].textContent = benchmark.stats.sample.length.toFixed(0);
-    row.cells[9].textContent = benchmark.hz.toFixed(4);
+    row.cells[3].textContent = benchmark.stats.deviation.toFixed(4);
+    row.cells[4].textContent = benchmark.stats.mean.toFixed(4);
+    row.cells[5].textContent = benchmark.stats.moe.toFixed(4);
+    row.cells[6].textContent = benchmark.stats.rme.toFixed(4);
+    row.cells[7].textContent = benchmark.stats.sem.toFixed(4);
+    row.cells[8].textContent = benchmark.stats.variance.toFixed(4);
+    row.cells[9].textContent = benchmark.stats.sample.length.toFixed(0);
+    row.cells[10].textContent = benchmark.hz.toFixed(4);
 }
 
 function createProjects(count: number): IProject[] {
