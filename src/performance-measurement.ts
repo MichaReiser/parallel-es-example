@@ -39,7 +39,7 @@ function addAsyncTest(suite: benchmark.Suite, title: string, fn: (this: undefine
                     benchmark.error = error;
                     deferred.resolve();
                 }
-            )
+            );
     }, {
         defer: true
     })
