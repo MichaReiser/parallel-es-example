@@ -5,8 +5,8 @@
   "repository": "https://github.com/DatenMetzgerX/parallel-es-webpack-plugin",
   "main": "index.js",
   "scripts": {
-    "build": "webpack",
-    "start": "webpack-dev-server --progress --content-base src --hot",
+    "build": "cross-env NODE_ENV=prod webpack",
+    "start": "cross-env NODE_ENV=dev webpack-dev-server --progress --content-base src --hot",
     "test": "echo \"no tests specified\""
   },
   "author": "Micha Reiser <micha@famreiser.ch>",
@@ -21,6 +21,7 @@
     "babel-plugin-parallel-es": "0.1.1",
     "babel-preset-es2015": "^6.18.0",
     "benchmark": "2.1.2",
+    "cross-env": "^3.1.3",
     "file-loader": "^0.9.0",
     "json2csv": "^3.7.1",
     "lodash": "4.16.5",
@@ -30,6 +31,7 @@
     "source-map-loader": "^0.1.5",
     "typescript": "^2.0.6",
     "webpack": "^2.1.0-beta.25",
+    "webpack-config": "^6.2.0",
     "webpack-dev-server": "^2.1.0-beta.4"
   },
   "dependencies": {
