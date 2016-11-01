@@ -322,7 +322,7 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
     };
 }
 
-declare const global: {options: IInitializedMonteCarloSimulationOptions};
+declare const global: {options: IInitializedMonteCarloSimulationOptions, env?: IMonteCarloEnvironment};
 
 export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions) {
     const options = initializeOptions(userOptions);
@@ -337,7 +337,7 @@ export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions)
         .require(createMonteCarloEnvironment)
         .require(calculateProject)
         .map(function (project: IProject): IProjectResult {
-            const env = createMonteCarloEnvironment(global.options);
-            return calculateProject(project, env);
+            global.env = global.env || createMonteCarloEnvironment(global.options);
+            return calculateProject(project, global.env);
         });
 }
