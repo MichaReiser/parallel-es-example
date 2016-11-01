@@ -322,7 +322,7 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
     };
 }
 
-declare const global: {options: IInitializedMonteCarloSimulationOptions, env?: IMonteCarloEnvironment};
+declare const global: { simulation: { options: IInitializedMonteCarloSimulationOptions, env?: IMonteCarloEnvironment} };
 
 export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions) {
     const options = initializeOptions(userOptions);
@@ -330,14 +330,14 @@ export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions)
     // Array needs to be cloned, otherwise the original array is manipulated!
     return new Parallel(options.projects.slice(), {
             evalPath: "./" + require("file!paralleljs/lib/eval.js"),
-            env: options,
-            envNamespace: "options"
+            env: { options },
+            envNamespace: "simulation"
         })
         .require("https://raw.githubusercontent.com/mvarshney/simjs-source/master/src/random.js") // the one from node uses module syntax
         .require(createMonteCarloEnvironment)
         .require(calculateProject)
         .map(function (project: IProject): IProjectResult {
-            global.env = global.env || createMonteCarloEnvironment(global.options);
-            return calculateProject(project, global.env);
+            global.simulation.env = global.simulation.env || createMonteCarloEnvironment(global.simulation.options);
+            return calculateProject(project, global.simulation.env);
         });
 }
