@@ -322,7 +322,7 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
     };
 }
 
-declare const global: { simulation: { options: IInitializedMonteCarloSimulationOptions, env?: IMonteCarloEnvironment} };
+declare const global: { simulation: { options: IInitializedMonteCarloSimulationOptions, env?: IMonteCarloEnvironment } };
 
 export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions) {
     const options = initializeOptions(userOptions);
