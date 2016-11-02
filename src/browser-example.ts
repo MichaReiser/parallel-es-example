@@ -48,10 +48,10 @@ document.querySelector("#mandelbrot-run-parallel").addEventListener("click", fun
     event.preventDefault();
 
     mandelbrotContext!.putImageData(mandelbrotContext!.createImageData(mandelbrotCanvas.width, mandelbrotCanvas.height), 0, 0);
-    const maxValuesPerTask = parseInt((document.querySelector("#mandelbrot-values-per-task") as HTMLInputElement).value, 10);
+    const valuesPerTask = parseInt((document.querySelector("#mandelbrot-values-per-task") as HTMLInputElement).value, 10);
 
     console.time("mandelbrot-parallel");
-    parallelMandelbrot(mandelbrotOptions, { maxValuesPerTask })
+    parallelMandelbrot(mandelbrotOptions, { minValuesPerTask: valuesPerTask, maxValuesPerTask: valuesPerTask })
         .subscribe((lines, index, blockSize) => {
             for (let i = 0; i < lines.length; ++i) {
                 mandelbrotContext!.putImageData(new ImageData(lines[i], mandelbrotCanvas.width, 1), 0, index * blockSize + i);

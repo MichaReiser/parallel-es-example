@@ -109,14 +109,15 @@ function addMandelbrotTests(suite: benchmark.Suite) {
         syncMandelbrot(mandelbrotOptions, () => undefined);
     });
 
-    for (const maxValuesPerTask of [undefined, 1, 75, 150, 300, 600, 1200]) {
+    for (const valuesPerTask of [undefined, 1, 150, 312, 625, 1250, 2500]) {
+        const parallelOptions = { maxValuesPerTask: valuesPerTask, minValuesPerTask: valuesPerTask };
         let title = `Mandelbrot ${mandelbrotOptions.imageWidth}x${mandelbrotOptions.imageHeight}, ${mandelbrotOptions.iterations}`;
-        if (maxValuesPerTask) {
-            title += ` (${maxValuesPerTask})`;
+        if (valuesPerTask) {
+            title += ` (${valuesPerTask})`;
         }
 
-        addAsyncTest(suite, `parallel-dynamic: ${title}`, () => dynamicParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }));
-        addAsyncTest(suite, `parallel-transpiled: ${title}`, () => transpiledParallelMandelbrot(mandelbrotOptions, { maxValuesPerTask }));
+        addAsyncTest(suite, `parallel-dynamic: ${title}`, () => dynamicParallelMandelbrot(mandelbrotOptions, parallelOptions));
+        addAsyncTest(suite, `parallel-transpiled: ${title}`, () => transpiledParallelMandelbrot(mandelbrotOptions, parallelOptions));
     }
 
     addAsyncTest(suite, `paralleljs: Mandelbrot ${mandelbrotWidth}x${mandelbrotHeight}, ${mandelbrotIterations}`, () => parallelJSMandelbrot(mandelbrotOptions));
@@ -144,16 +145,13 @@ function measure() {
 
     suite.forEach((benchmark: benchmark) => {
         const index = suite.indexOf(benchmark);
-
-        benchmark.on("cycle", () => {
-            const body = outputTable.tBodies[0] as HTMLTableSectionElement;
-            const row = body.rows[index] as HTMLTableRowElement;
-            row.cells[2].textContent = (benchmark.stats.sample.length + 1) + "";
-        });
+        benchmark.on("cycle", () => appendTestResults(benchmark, index));
     });
 
     suite.on("cycle", function (event: benchmark.Event) {
-        appendTestResults(event);
+        const benchmark = event.target as (benchmark);
+        const index = (event.currentTarget as Array<benchmark>).indexOf(benchmark);
+        appendTestResults(benchmark, index);
     });
 
     suite.on("complete", function (event: benchmark.Event) {
@@ -204,20 +202,18 @@ function initResultTable(event: benchmark.Event) {
     });
 }
 
-function appendTestResults(event: benchmark.Event) {
+function appendTestResults(benchmark: benchmark, index: number) {
     const body = outputTable.tBodies[0] as HTMLTableSectionElement;
-    const benchmark = event.target as (benchmark);
-    const index = (event.currentTarget as Array<benchmark>).indexOf(benchmark);
     const row = body.rows[index] as HTMLTableRowElement;
 
-    row.cells[3].textContent = benchmark.stats.deviation.toFixed(4);
-    row.cells[4].textContent = benchmark.stats.mean.toFixed(4);
-    row.cells[5].textContent = benchmark.stats.moe.toFixed(4);
-    row.cells[6].textContent = benchmark.stats.rme.toFixed(4);
-    row.cells[7].textContent = benchmark.stats.sem.toFixed(4);
-    row.cells[8].textContent = benchmark.stats.variance.toFixed(4);
-    row.cells[9].textContent = benchmark.stats.sample.length.toFixed(0);
-    row.cells[10].textContent = benchmark.hz.toFixed(4);
+    row.cells[2].textContent = benchmark.stats.deviation.toFixed(4);
+    row.cells[3].textContent = benchmark.stats.mean.toFixed(4);
+    row.cells[4].textContent = benchmark.stats.moe.toFixed(4);
+    row.cells[5].textContent = benchmark.stats.rme.toFixed(4);
+    row.cells[6].textContent = benchmark.stats.sem.toFixed(4);
+    row.cells[7].textContent = benchmark.stats.variance.toFixed(4);
+    row.cells[8].textContent = benchmark.stats.sample.length.toFixed(0);
+    row.cells[9].textContent = benchmark.hz.toFixed(4);
 }
 
 function createProjects(count: number): IProject[] {
