@@ -25,7 +25,8 @@ module.exports = new Config().merge({
                 loader: `babel?${JSON.stringify({"plugins": [ "parallel-es"] })}!awesome-typescript-loader`
             },
             {
-                test: /\.parallel*\.js/,
+                test: /parallel.*\.js/,
+                include: path.resolve("./node_modules/parallel-es"),
                 loader: "source-map"
             }
         ],

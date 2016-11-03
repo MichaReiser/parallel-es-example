@@ -27,7 +27,7 @@
     "lodash": "4.16.6",
     "parallel-es-webpack-plugin": "0.1.1",
     "platform": "^1.3.2",
-    "simjs-random": "0.2.6",
+    "simjs-random": "^0.2.6",
     "source-map-loader": "^0.1.5",
     "typescript": "^2.0.6",
     "webpack": "^2.1.0-beta.25",
@@ -35,9 +35,9 @@
     "webpack-dev-server": "^2.1.0-beta.4"
   },
   "dependencies": {
-    "@types/paralleljs": "0.0.17",
+    "@types/paralleljs": "^0.0.17",
     "babel-loader": "^6.2.7",
-    "parallel-es": "0.1.4",
+    "parallel-es": "^0.1.4",
     "paralleljs": "git+https://github.com/parallel-js/parallel.js.git",
     "simjs-random": "^0.2.6"
   }
