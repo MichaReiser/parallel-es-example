@@ -1,11 +1,5 @@
-const Parallel = require("paralleljs");
+import {Pool, Done} from "threads";
 import {Dictionary} from "lodash";
-
-
-/* tslint:disable:no-var-requires */
-// declare function require(name: string): any;
-// const Random = require("simjs-random");
-// const random = new Random(10);
 
 export interface IProject {
     startYear: number;
@@ -129,114 +123,120 @@ function initializeOptions(options?: IMonteCarloSimulationOptions): IInitialized
     }, options);
 }
 
-function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOptions): IMonteCarloEnvironment {
-    const random = new (self as any).Random(10);
-
-    /**
-     * Performs the monte carlo simulation for all years and num runs.
-     * @param cashFlows the cash flows
-     * @returns {number[][]} the simulated outcomes grouped by year
-     */
-    function simulateOutcomes(cashFlows: number[], numYears: number): number[][]  {
-        function toAbsoluteIndices(indices: number[]) {
-            let currentPortfolioValue = options.investmentAmount;
-            let previousYearIndex = 100;
-
-            for (let relativeYear = 0; relativeYear < indices.length; ++relativeYear) {
-                const currentYearIndex = indices[relativeYear];
-                const cashFlowStartOfYear = relativeYear === 0 ? 0 : cashFlows[relativeYear - 1];
-
-                // scale current value with performance gain according to index
-                const performance = currentYearIndex / previousYearIndex;
-                currentPortfolioValue = (currentPortfolioValue + cashFlowStartOfYear) * performance;
-
-                indices[relativeYear] =  1 + random.normal(performance, options.volatility);
-
-                previousYearIndex = currentYearIndex;
-            }
-
-            return indices;
-        }
-
-        const result: number[][] = new Array(options.numYears);
-        for (let year = 0; year <= numYears; ++year) {
-            result[year] = new Array(options.numRuns);
-        }
-
-        for (let run = 0; run < options.numRuns; run++) {
-            const indices = [100];
-
-            for (let i = 1; i <= numYears; i++) {
-                // const randomPerformance = 1 + random.normal(options.performance, options.volatility);
-                const randomPerformance = 1 + Math.random();
-                indices.push(indices[i - 1] * randomPerformance);
-            }
-
-            // convert the relative values from above to absolute values.
-            toAbsoluteIndices(indices);
-
-            for (let year = 0; year < indices.length; ++year) {
-                result[year][run] = indices[year];
-            }
-        }
-
-        return result;
-    }
-
-    function projectsToCashFlows() {
-        const cashFlows: number[] = [];
-        for (let year = 0; year < options.numYears; ++year) {
-            const projectsByThisYear = projectsByStartYear[year] || [];
-            const cashFlow = -projectsByThisYear.reduce((memo, project) => memo + project.totalAmount, 0);
-            cashFlows.push(cashFlow);
-        }
-        return cashFlows;
-    }
-
-    function calculateNoInterestReferenceLine(cashFlows: number[]) {
-        const noInterestReferenceLine: number[] = [];
-
-        let investmentAmountLeft = options.investmentAmount;
-        for (let year = 0; year < options.numYears; ++year) {
-            investmentAmountLeft = investmentAmountLeft + cashFlows[year];
-            noInterestReferenceLine.push(investmentAmountLeft);
-        }
-        return noInterestReferenceLine;
-    }
-
-    let projectsToSimulate: IProject[] = options.projects;
-
-    if (options.taskIndex && options.valuesPerWorker) {
-        projectsToSimulate = options.projects.slice(options.taskIndex * options.valuesPerWorker, (options.taskIndex + 1) * options.valuesPerWorker);
-    }
-
-    const projects = options.projects.sort((a, b) => a.startYear - b.startYear);
-
-    // Group projects by startYear, use lodash groupBy instead
-    const projectsByStartYear: Dictionary<IProject[]> = {};
-    for (const project of projects) {
-        const arr = projectsByStartYear[project.startYear] = projectsByStartYear[project.startYear] || [];
-        arr.push(project);
-    }
-
-    const cashFlows = projectsToCashFlows();
-    const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows);
-
-    const numYears = projectsToSimulate.reduce((memo, project) => Math.max(memo, project.startYear), 0);
-
-    return {
-        investmentAmount: options.investmentAmount,
-        liquidity: options.liquidity,
-        noInterestReferenceLine,
-        numRuns: options.numRuns,
-        numYears,
-        projectsByStartYear,
-        simulatedValues: simulateOutcomes(cashFlows, numYears)
-    };
+interface IMonteCarloSimulation {
+    environment?: IMonteCarloEnvironment;
 }
 
-function calculateProject(project: IProject, environment: IMonteCarloEnvironment): IProjectResult {
+function calculateProject(this: IMonteCarloSimulation, { project, options}: { project: IProject, options: IInitializedMonteCarloSimulationOptions}, done: Done): void {
     const NUMBER_OF_BUCKETS = 10;
+    const environment = this.environment = this.environment || createMonteCarloEnvironment(options);
+
+    function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOptions): IMonteCarloEnvironment {
+        const random = new (self as any).Random(10);
+
+        /**
+         * Performs the monte carlo simulation for all years and num runs.
+         * @param cashFlows the cash flows
+         * @returns {number[][]} the simulated outcomes grouped by year
+         */
+        function simulateOutcomes(cashFlows: number[], numYears: number): number[][]  {
+            function toAbsoluteIndices(indices: number[]) {
+                let currentPortfolioValue = options.investmentAmount;
+                let previousYearIndex = 100;
+
+                for (let relativeYear = 0; relativeYear < indices.length; ++relativeYear) {
+                    const currentYearIndex = indices[relativeYear];
+                    const cashFlowStartOfYear = relativeYear === 0 ? 0 : cashFlows[relativeYear - 1];
+
+                    // scale current value with performance gain according to index
+                    const performance = currentYearIndex / previousYearIndex;
+                    currentPortfolioValue = (currentPortfolioValue + cashFlowStartOfYear) * performance;
+
+                    indices[relativeYear] =  1 + random.normal(performance, options.volatility);
+
+                    previousYearIndex = currentYearIndex;
+                }
+
+                return indices;
+            }
+
+            const result: number[][] = new Array(options.numYears);
+            for (let year = 0; year <= numYears; ++year) {
+                result[year] = new Array(options.numRuns);
+            }
+
+            for (let run = 0; run < options.numRuns; run++) {
+                const indices = [100];
+
+                for (let i = 1; i <= numYears; i++) {
+                    // const randomPerformance = 1 + random.normal(options.performance, options.volatility);
+                    const randomPerformance = 1 + Math.random();
+                    indices.push(indices[i - 1] * randomPerformance);
+                }
+
+                // convert the relative values from above to absolute values.
+                toAbsoluteIndices(indices);
+
+                for (let year = 0; year < indices.length; ++year) {
+                    result[year][run] = indices[year];
+                }
+            }
+
+            return result;
+        }
+
+        function projectsToCashFlows() {
+            const cashFlows: number[] = [];
+            for (let year = 0; year < options.numYears; ++year) {
+                const projectsByThisYear = projectsByStartYear[year] || [];
+                const cashFlow = -projectsByThisYear.reduce((memo, project) => memo + project.totalAmount, 0);
+                cashFlows.push(cashFlow);
+            }
+            return cashFlows;
+        }
+
+        function calculateNoInterestReferenceLine(cashFlows: number[]) {
+            const noInterestReferenceLine: number[] = [];
+
+            let investmentAmountLeft = options.investmentAmount;
+            for (let year = 0; year < options.numYears; ++year) {
+                investmentAmountLeft = investmentAmountLeft + cashFlows[year];
+                noInterestReferenceLine.push(investmentAmountLeft);
+            }
+            return noInterestReferenceLine;
+        }
+
+        let projectsToSimulate: IProject[] = options.projects;
+
+        if (options.taskIndex && options.valuesPerWorker) {
+            projectsToSimulate = options.projects.slice(options.taskIndex * options.valuesPerWorker, (options.taskIndex + 1) * options.valuesPerWorker);
+        }
+
+        const projects = options.projects.sort((a, b) => a.startYear - b.startYear);
+
+        // Group projects by startYear, use lodash groupBy instead
+        const projectsByStartYear: Dictionary<IProject[]> = {};
+        for (const project of projects) {
+            const arr = projectsByStartYear[project.startYear] = projectsByStartYear[project.startYear] || [];
+            arr.push(project);
+        }
+
+        const cashFlows = projectsToCashFlows();
+        const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows);
+
+        const numYears = projectsToSimulate.reduce((memo, project) => Math.max(memo, project.startYear), 0);
+
+        return {
+            investmentAmount: options.investmentAmount,
+            liquidity: options.liquidity,
+            noInterestReferenceLine,
+            numRuns: options.numRuns,
+            numYears,
+            projectsByStartYear,
+            simulatedValues: simulateOutcomes(cashFlows, numYears)
+        };
+    }
+
     function groupForValue(value: number, groups: IGroup[]): IGroup {
         return groups.find(group => (typeof group.from === "undefined" || group.from <= value) && (typeof group.to === "undefined" || group.to > value))!;
     }
@@ -273,6 +273,7 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
         return (values[half - 1] + values[half]) / 2.0;
     }
 
+
     const requiredAmount = calculateRequiredAmount();
     const simulatedValuesThisYear = environment.simulatedValues[project.startYear];
     simulatedValuesThisYear.sort((a, b) => a - b);
@@ -308,7 +309,7 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
     nonEmptyGroups.forEach(group => group.percentage = valuesByGroup[group.name] / simulatedValuesThisYear.length);
 
     const oneSixth = Math.round(simulatedValuesThisYear.length / 6);
-    return {
+    done({
         buckets,
         groups: nonEmptyGroups,
         max: simulatedValuesThisYear[simulatedValuesThisYear.length - 1],
@@ -319,25 +320,18 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
             max: simulatedValuesThisYear[simulatedValuesThisYear.length - oneSixth],
             min: simulatedValuesThisYear[oneSixth]
         }
-    };
+    });
 }
 
-declare const global: { simulation: { options: IInitializedMonteCarloSimulationOptions, env?: IMonteCarloEnvironment } };
-
-export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions) {
+export function threadsMonteCarlo(userOptions: IMonteCarloSimulationOptions, pool: Pool) {
     const options = initializeOptions(userOptions);
 
-    // Array needs to be cloned, otherwise the original array is manipulated!
-    return new Parallel(options.projects.slice(), {
-            evalPath: "./" + require("file!paralleljs/lib/eval.js"),
-            env: { options },
-            envNamespace: "simulation"
-        })
-        .require("https://raw.githubusercontent.com/mvarshney/simjs-source/master/src/random.js") // the one from node uses module syntax
-        .require(createMonteCarloEnvironment)
-        .require(calculateProject)
-        .map(function (project: IProject): IProjectResult {
-            global.simulation.env = global.simulation.env || createMonteCarloEnvironment(global.simulation.options);
-            return calculateProject(project, global.simulation.env);
-        });
+    const jobs: PromiseLike<IProjectResult>[] = [];
+    pool.run(calculateProject, [ "https://raw.githubusercontent.com/mvarshney/simjs-source/master/src/random.js" ]);
+
+    for (const project of options.projects) {
+        jobs.push(pool.send({ options, project }).promise());
+    }
+
+    return Promise.all(jobs);
 }

@@ -16,6 +16,11 @@ import {parallelJSMandelbrot} from "./paralleljs/mandelbrot";
 import {parallelJSMonteCarlo} from "./paralleljs/monte-carlo";
 import {parallelJSKnightTours} from "./paralleljs/knights-tour";
 
+import {threadsMonteCarlo} from "./threads/monte-carlo";
+import {threadsMandelbrot} from "./threads/mandelbrot";
+import {threadsKnightTours} from "./threads/knights-tour";
+import {Pool} from "threads";
+
 let Benchmark = (benchmark as any).runInContext({ _ });
 (window as any).Benchmark = Benchmark;
 
@@ -29,10 +34,14 @@ const knightRunner6x6 = document.querySelector("#knight-runner-6-6") as HTMLInpu
 
 type Deferred = { resolve: () => void };
 
-function addAsyncTest(suite: benchmark.Suite, title: string, fn: (this: undefined) => PromiseLike<any>) {
-    suite.add(title, function (this: benchmark, deferred: Deferred) {
+function addAsyncTest(suite: benchmark.Suite, optionsOrTitle: string | (benchmark.Options & { fn: (this: undefined) => PromiseLike<any> }), fn?: ((this: undefined) => PromiseLike<any>)) {
+    const options: benchmark.Options = typeof(optionsOrTitle) === "string" ? { name: optionsOrTitle, fn} : optionsOrTitle;
+    const asyncFn = options.fn as Function;
+
+    options.defer = true;
+    options.fn = function (this: benchmark, deferred: Deferred) {
         const benchmark = this;
-        fn.apply(undefined, [])
+        asyncFn.apply(undefined, [])
             .then(function () { deferred.resolve() },
                 function (error: any) {
                     console.error(error);
@@ -40,9 +49,32 @@ function addAsyncTest(suite: benchmark.Suite, title: string, fn: (this: undefine
                     deferred.resolve();
                 }
             );
-    }, {
-        defer: true
-    })
+    };
+
+    return suite.add(options);
+}
+
+/**
+ * Helper for threadjs tests. Creates the thread pool before the tests are run. A new thread pool for each test run is needed
+ * to avoid caching of the environment across runs.
+ */
+function addThreadJsTest(this: any, suite: benchmark.Suite, name: string, fn: (...args: any[]) => void, ...args: any[]) {
+    let argsWithPool: any[];
+    let pool: Pool;
+    addAsyncTest(suite, {
+        name,
+        setup: function () {
+            pool = new Pool();
+            argsWithPool = args.slice();
+            argsWithPool.push(pool);
+        },
+        fn: () => fn.apply(this, argsWithPool),
+        teardown: function () {
+            if (pool) {
+                pool.killAll();
+            }
+        }
+    });
 }
 
 function addKnightBoardTests(suite: benchmark.Suite) {
@@ -57,6 +89,7 @@ function addKnightBoardTests(suite: benchmark.Suite) {
         addAsyncTest(suite, `parallel-dynamic: ${title}`, () => dynamicParallelKnightTours({x: 0, y: 0}, boardSize));
         addAsyncTest(suite, `parallel-transpiled: ${title}`, () => transpiledParallelKnightTours({x: 0, y: 0}, boardSize));
         addAsyncTest(suite, `paralleljs: ${title}`, () => parallelJSKnightTours({x: 0, y: 0}, boardSize));
+        addThreadJsTest(suite, `threadsjs: ${title}`, threadsKnightTours, {x: 0, y: 0}, boardSize);
     }
 }
 
@@ -78,6 +111,7 @@ function addMonteCarloTest(suite: benchmark.Suite, options: IMonteCarloSimulatio
 
     addAsyncTest(suite, `parallel-transpiled: Monte Carlo simjs ${configName}`, () => simJsParallelMonteCarlo(runOptions));
     addAsyncTest(suite, `paralleljs: Monte Carlo simjs ${configName}`, () => parallelJSMonteCarlo(runOptions));
+    addThreadJsTest(suite, `threadsjs: Monte Carlo simjs ${configName}`, threadsMonteCarlo, runOptions);
 }
 
 function addMonteCarloTests(suite: benchmark.Suite) {
@@ -121,6 +155,7 @@ function addMandelbrotTests(suite: benchmark.Suite) {
     }
 
     addAsyncTest(suite, `paralleljs: Mandelbrot ${mandelbrotWidth}x${mandelbrotHeight}, ${mandelbrotIterations}`, () => parallelJSMandelbrot(mandelbrotOptions));
+    addThreadJsTest(suite, `threadsjs: Mandelbrot ${mandelbrotWidth}x${mandelbrotHeight}, ${mandelbrotIterations}`, threadsMandelbrot, mandelbrotOptions)
 }
 
 function measure() {

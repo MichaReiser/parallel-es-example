@@ -13,7 +13,7 @@ module.exports = new Config().merge({
         filename: "[name].js"
     },
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.ts$/,
                 exclude: path.resolve("./src/transpiled"),
@@ -26,7 +26,7 @@ module.exports = new Config().merge({
             },
             {
                 test: /parallel.*\.js/,
-                include: path.resolve("./node_modules/parallel-es"),
+                include: path.resolve(require.resolve("parallel-es"), "../"),
                 loader: "source-map"
             }
         ],

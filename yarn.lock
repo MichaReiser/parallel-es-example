@@ -222,7 +222,7 @@ babel-code-frame@^6.16.0:
     esutils "^2.0.2"
     js-tokens "^2.0.0"
 
-babel-core@^6.17.0, babel-core@^6.18.0:
+babel-core@^6.17.0, babel-core@^6.18.0, babel-core@^6.18.2:
   version "6.18.2"
   resolved "https://registry.yarnpkg.com/babel-core/-/babel-core-6.18.2.tgz#d8bb14dd6986fa4f3566a26ceda3964fa0e04e5b"
   dependencies:
@@ -354,9 +354,9 @@ babel-plugin-check-es2015-constants@^6.3.13:
   dependencies:
     babel-runtime "^6.0.0"
 
-babel-plugin-parallel-es@0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/babel-plugin-parallel-es/-/babel-plugin-parallel-es-0.1.1.tgz#6cd9abd56f22575eb593c81dc0c5d4923c22df6b"
+babel-plugin-parallel-es@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/babel-plugin-parallel-es/-/babel-plugin-parallel-es-0.1.2.tgz#200e0c6abb8598c943283754c81a12e93f93f188"
   dependencies:
     "@types/babel-core" "^6.7.14"
     "@types/babel-generator" "^6.7.14"
@@ -1150,7 +1150,7 @@ etag@~1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.7.0.tgz#03d30b5f67dd6e632d2945d30d6652731a34d5d8"
 
-eventemitter3@1.x.x:
+eventemitter3@^1.1.1, eventemitter3@1.x.x:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-1.2.0.tgz#1c86991d816ad1e504750e73874224ecf3bec508"
 
@@ -1958,6 +1958,10 @@ nan@^2.3.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.4.0.tgz#fb3c59d45fe4effe215f0b890f8adf6eb32d2232"
 
+native-promise-only@^0.8.1:
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/native-promise-only/-/native-promise-only-0.8.1.tgz#20a318c30cb45f71fe7adfbf7b21c99c1472ef11"
+
 negotiator@0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
@@ -2124,9 +2128,9 @@ parallel-es-webpack-plugin@0.1.1:
     babel-loader "^6.2.5"
     source-map "^0.5.6"
 
-parallel-es@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/parallel-es/-/parallel-es-0.1.4.tgz#e1d683945dcee59f8b38594f6d36f40f3a32a56e"
+parallel-es@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/parallel-es/-/parallel-es-0.1.5.tgz#5d2bec4e2bc0edf8e91a94105e24a04eee7c2f21"
 
 "paralleljs@git+https://github.com/parallel-js/parallel.js.git":
   version "0.2.1"
@@ -2706,6 +2710,13 @@ tar@~2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
+"threads@https://github.com/DatenMetzgerX/threads.js#fix-pool-to-job-args":
+  version "0.7.0"
+  resolved "https://github.com/DatenMetzgerX/threads.js#b8ea07b4060c6da0461a6bc3207fe8b9c3e53d84"
+  dependencies:
+    eventemitter3 "^1.1.1"
+    native-promise-only "^0.8.1"
+
 timers-browserify@^1.0.1:
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/timers-browserify/-/timers-browserify-1.4.2.tgz#c9c58b575be8407375cb5e2462dacee74359f41d"
@@ -2741,9 +2752,9 @@ type-is@~1.6.13:
     media-typer "0.3.0"
     mime-types "~2.1.11"
 
-typescript@^2.0.6:
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.0.6.tgz#5385499ac9811508c2c43e0ea07a1ddca435e111"
+typescript@^2.0.7:
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.0.7.tgz#efc39e8822e240d0b741d06ff86708137bcdb5e4"
 
 uglify-js@~2.7.3:
   version "2.7.4"
@@ -2842,7 +2853,7 @@ wbuf@^1.1.0, wbuf@^1.4.0:
   dependencies:
     minimalistic-assert "^1.0.0"
 
-webpack-config@^6.2.0:
+webpack-config@^6.2.1:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/webpack-config/-/webpack-config-6.2.1.tgz#4e3556c8a8c5ef91719aa70f343afbec3bdfc572"
   dependencies:
