@@ -37,9 +37,9 @@
   "dependencies": {
     "@types/paralleljs": "^0.0.17",
     "babel-loader": "^6.2.7",
-    "parallel-es": "^0.1.5",
+    "parallel-es": "^0.1.6",
     "paralleljs": "git+https://github.com/parallel-js/parallel.js.git",
     "simjs-random": "^0.2.6",
-    "threads": "https://github.com/DatenMetzgerX/threads.js#fix-pool-to-job-args"
+    "threads": "^0.7.1"
   }
 }

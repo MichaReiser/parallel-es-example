@@ -2128,9 +2128,9 @@ parallel-es-webpack-plugin@0.1.1:
     babel-loader "^6.2.5"
     source-map "^0.5.6"
 
-parallel-es@^0.1.5:
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/parallel-es/-/parallel-es-0.1.5.tgz#5d2bec4e2bc0edf8e91a94105e24a04eee7c2f21"
+parallel-es@^0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/parallel-es/-/parallel-es-0.1.6.tgz#6f98e1723155c2556d41c62b08bbe0510a01c762"
 
 "paralleljs@git+https://github.com/parallel-js/parallel.js.git":
   version "0.2.1"
@@ -2359,8 +2359,8 @@ regenerate@^1.2.1:
   resolved "https://registry.yarnpkg.com/regenerate/-/regenerate-1.3.1.tgz#0300203a5d2fdcf89116dce84275d011f5903f33"
 
 regenerator-runtime@^0.9.5:
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.9.5.tgz#403d6d40a4bdff9c330dd9392dcbb2d9a8bba1fc"
+  version "0.9.6"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.9.6.tgz#d33eb95d0d2001a4be39659707c51b0cb71ce029"
 
 regex-cache@^0.4.2:
   version "0.4.3"
@@ -2710,9 +2710,9 @@ tar@~2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
-"threads@https://github.com/DatenMetzgerX/threads.js#fix-pool-to-job-args":
-  version "0.7.0"
-  resolved "https://github.com/DatenMetzgerX/threads.js#b8ea07b4060c6da0461a6bc3207fe8b9c3e53d84"
+threads@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/threads/-/threads-0.7.1.tgz#8216ff4f4c6b8fac3a2879ae97096ac6f032b4ee"
   dependencies:
     eventemitter3 "^1.1.1"
     native-promise-only "^0.8.1"

@@ -332,7 +332,7 @@ export function syncMonteCarlo(options?: IMonteCarloSimulationOptions) {
 export function parallelMonteCarlo(userOptions?: IMonteCarloSimulationOptions) {
     const options = initializeOptions(userOptions);
     return parallel
-        .from(options.projects, { minValuesPerTask: 2 })
+        .from(options.projects, { minValuesPerTask: 2, oversubscribe: false })
         .inEnvironment(createMonteCarloEnvironment, options)
         .map(calculateProject);
 }
