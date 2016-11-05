@@ -2120,10 +2120,6 @@ pako@~0.2.0:
   version "0.2.9"
   resolved "https://registry.yarnpkg.com/pako/-/pako-0.2.9.tgz#f3f7522f4ef782348da8161bad9ecfd51bf83a75"
 
-parallel-es:
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/parallel-es/-/parallel-es-0.1.6.tgz#6f98e1723155c2556d41c62b08bbe0510a01c762"
-
 parallel-es-webpack-plugin@0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/parallel-es-webpack-plugin/-/parallel-es-webpack-plugin-0.1.1.tgz#71d8d0408600265233bcd66a619a99fcb84eb9ed"
@@ -2131,6 +2127,10 @@ parallel-es-webpack-plugin@0.1.1:
     babel-core "^6.17.0"
     babel-loader "^6.2.5"
     source-map "^0.5.6"
+
+parallel-es@^0.1.6:
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/parallel-es/-/parallel-es-0.1.8.tgz#fd182475fdb7ff3f226c015e6466d1ce7ba3e375"
 
 "paralleljs@git+https://github.com/parallel-js/parallel.js.git":
   version "0.2.1"
