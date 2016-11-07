@@ -136,6 +136,7 @@ function addMandelbrotTests(suite: benchmark.Suite) {
     const mandelbrotHeight = parseInt((document.querySelector("#mandelbrot-height") as HTMLInputElement).value, 10);
     const mandelbrotWidth = parseInt((document.querySelector("#mandelbrot-width") as HTMLInputElement).value, 10);
     const mandelbrotIterations = parseInt((document.querySelector("#mandelbrot-iterations") as HTMLInputElement).value, 10);
+    const onlyDefaultScheduling = (document.querySelector("#mandelbrot-only-default-scheduling") as HTMLInputElement).value;
 
     const mandelbrotOptions = createMandelOptions(mandelbrotWidth, mandelbrotHeight, mandelbrotIterations);
 
@@ -143,7 +144,8 @@ function addMandelbrotTests(suite: benchmark.Suite) {
         syncMandelbrot(mandelbrotOptions, () => undefined);
     });
 
-    for (const valuesPerTask of [undefined, 1, 150, 312, 625, 1250, 2500]) {
+    const  taskSizes = onlyDefaultScheduling ? [undefined] : [undefined, 1, 150, 312, 625, 1250, 2500];
+    for (const valuesPerTask of taskSizes) {
         const parallelOptions = { maxValuesPerTask: valuesPerTask, minValuesPerTask: valuesPerTask };
         let title = `Mandelbrot ${mandelbrotOptions.imageWidth}x${mandelbrotOptions.imageHeight}, ${mandelbrotOptions.iterations}`;
         if (valuesPerTask) {
