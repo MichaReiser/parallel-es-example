@@ -124,7 +124,7 @@ function addMonteCarloTests(suite: benchmark.Suite) {
         volatility: 0.0896000
     };
 
-    for (const numRuns of [10 ** 4, 10 ** 5]) {
+    for (const numRuns of [10 ** 4, 10 ** 5, 10 ** 6]) {
         for (const numberOfProjects of  [1, 4, 8, 16]) {
             const options = Object.assign({}, monteCarloOptions, { numberOfProjects, numRuns });
             addMonteCarloTest(suite, options);
