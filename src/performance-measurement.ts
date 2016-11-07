@@ -136,7 +136,7 @@ function addMandelbrotTests(suite: benchmark.Suite) {
     const mandelbrotHeight = parseInt((document.querySelector("#mandelbrot-height") as HTMLInputElement).value, 10);
     const mandelbrotWidth = parseInt((document.querySelector("#mandelbrot-width") as HTMLInputElement).value, 10);
     const mandelbrotIterations = parseInt((document.querySelector("#mandelbrot-iterations") as HTMLInputElement).value, 10);
-    const onlyDefaultScheduling = (document.querySelector("#mandelbrot-only-default-scheduling") as HTMLInputElement).value;
+    const onlyDefaultScheduling = (document.querySelector("#mandelbrot-only-default-scheduling") as HTMLInputElement).checked;
 
     const mandelbrotOptions = createMandelOptions(mandelbrotWidth, mandelbrotHeight, mandelbrotIterations);
 
