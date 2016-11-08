@@ -115,16 +115,21 @@ function addMonteCarloTest(suite: benchmark.Suite, options: IMonteCarloSimulatio
 }
 
 function addMonteCarloTests(suite: benchmark.Suite) {
+    const oneMillionRuns = (document.querySelector("#monte-carlo-1m") as HTMLInputElement).checked;
     const monteCarloOptions = {
         investmentAmount: 620000,
-        numRuns: 100000,
         numYears: 15,
         performance: 0.0340000,
         seed: 10,
         volatility: 0.0896000
     };
 
-    for (const numRuns of [10 ** 4, 10 ** 5, 10 ** 6]) {
+    const runs = [10**4, 10**5];
+    if (oneMillionRuns) {
+        runs.push(10**6);
+    }
+
+    for (const numRuns of runs) {
         for (const numberOfProjects of  [1, 4, 8, 16]) {
             const options = Object.assign({}, monteCarloOptions, { numberOfProjects, numRuns });
             addMonteCarloTest(suite, options);
