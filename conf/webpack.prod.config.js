@@ -8,9 +8,8 @@ module.exports = new Config().extend("conf/webpack.base.config.js").merge({
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.optimize.UglifyJsPlugin({ // Seems to break worker source maps
             sourceMap: true,
-            mangle: {
-                except: ["global"] // do not mangle global paralleljs env
-            }
+            debug: true,
+            mangle:false // mangling does not behave nicely with parallel.js
         })
     ]
 });
