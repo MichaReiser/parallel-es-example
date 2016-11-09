@@ -2,7 +2,7 @@ const json2csv  = require("json2csv");
 const fs = require("fs");
 const path = require("path");
 
-const directories = ["sync", "parallel-dynamic", "parallel-transpiled", "paralleljs" ];
+const directories = ["sync", "parallel-dynamic", "parallel-transpiled", "paralleljs", "threadsjs" ];
 
 const outputs = [];
 const fields = [

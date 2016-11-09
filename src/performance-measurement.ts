@@ -166,11 +166,20 @@ function addMandelbrotTests(suite: benchmark.Suite) {
 }
 
 function measure() {
+    const runMonteCarlo = (document.querySelector("#monte-carlo") as HTMLInputElement).checked;
+    const runMandelbrot = (document.querySelector("#mandelbrot-field") as HTMLInputElement).checked;
+    const runKnightTour = (document.querySelector("#knight-runner") as HTMLInputElement).checked;
     const allTestsSuite = new Benchmark.Suite();
 
-    addMonteCarloTests(allTestsSuite);
-    addMandelbrotTests(allTestsSuite);
-    addKnightBoardTests(allTestsSuite);
+    if (runMonteCarlo) {
+        addMonteCarloTests(allTestsSuite);
+    }
+    if (runMandelbrot) {
+        addMandelbrotTests(allTestsSuite);
+    }
+    if (runKnightTour) {
+        addKnightBoardTests(allTestsSuite);
+    }
 
     const suite = allTestsSuite.filter((benchmark: benchmark  & {name: string }) => {
         for (let i = 0; i < setCheckboxes.length; ++i) {

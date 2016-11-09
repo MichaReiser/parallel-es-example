@@ -22,14 +22,14 @@ export function mandelbrot({ imageWidth, imageHeight, iterations }: IMandelbrotO
         let n = 0;
 
         for (; n < iterations; ++n) {
-            if (z.real * z.real + z.i * z.i > 4) {
+            if (z.real ** 2 + z.i ** 2 > 4) {
                 break;
             }
 
             // z ** 2 + c
             const zI = z.i;
             z.i = 2 * z.real * z.i + c.i;
-            z.real = z.real * z.real - zI * zI + c.real;
+            z.real = z.real ** 2 - zI ** 2 + c.real;
         }
 
         return n;
