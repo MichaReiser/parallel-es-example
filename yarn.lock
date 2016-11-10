@@ -355,8 +355,8 @@ babel-plugin-check-es2015-constants@^6.3.13:
     babel-runtime "^6.0.0"
 
 babel-plugin-parallel-es@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/babel-plugin-parallel-es/-/babel-plugin-parallel-es-0.1.2.tgz#200e0c6abb8598c943283754c81a12e93f93f188"
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/babel-plugin-parallel-es/-/babel-plugin-parallel-es-0.1.3.tgz#5bf0d1d34526f08b2eb675e0fcd304b2fb147adf"
   dependencies:
     "@types/babel-core" "^6.7.14"
     "@types/babel-generator" "^6.7.14"
@@ -366,6 +366,7 @@ babel-plugin-parallel-es@^0.1.2:
     "@types/babylon" "^6.7.14"
     "@types/source-map" "^0.1.28"
     babel-code-frame "^6.16.0"
+    babel-plugin-undeclared-variables-check "^6.8.0"
 
 babel-plugin-transform-es2015-arrow-functions@^6.3.13:
   version "6.8.0"
@@ -550,6 +551,13 @@ babel-plugin-transform-strict-mode@^6.18.0:
   dependencies:
     babel-runtime "^6.0.0"
     babel-types "^6.18.0"
+
+babel-plugin-undeclared-variables-check@^6.8.0:
+  version "6.8.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-undeclared-variables-check/-/babel-plugin-undeclared-variables-check-6.8.0.tgz#a92d21ba84c9e2e4e0e06862d45094c8efcc5827"
+  dependencies:
+    babel-runtime "^6.0.0"
+    leven "^1.0.2"
 
 babel-preset-es2015@^6.18.0:
   version "6.18.0"
@@ -1815,6 +1823,10 @@ lcid@^1.0.0:
   resolved "https://registry.yarnpkg.com/lcid/-/lcid-1.0.0.tgz#308accafa0bc483a3867b4b6f2b9506251d1b835"
   dependencies:
     invert-kv "^1.0.0"
+
+leven@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/leven/-/leven-1.0.2.tgz#9144b6eebca5f1d0680169f1a6770dcea60b75c3"
 
 load-json-file@^1.0.0:
   version "1.1.0"
