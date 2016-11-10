@@ -187,7 +187,7 @@ function measure() {
             const parts = checkbox.id.split("-");
             const name = parts.slice(0, parts.length - 1).join("-");
 
-            if (checkbox.checked && benchmark.name.startsWith(name)) {
+            if (checkbox.checked && benchmark.name.indexOf(name) === 0) {
                 return true;
             }
         }
