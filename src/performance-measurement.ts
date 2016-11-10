@@ -171,14 +171,14 @@ function measure() {
     const runKnightTour = (document.querySelector("#knight-runner") as HTMLInputElement).checked;
     const allTestsSuite = new Benchmark.Suite();
 
-    if (runMonteCarlo) {
-        addMonteCarloTests(allTestsSuite);
-    }
     if (runMandelbrot) {
         addMandelbrotTests(allTestsSuite);
     }
     if (runKnightTour) {
         addKnightBoardTests(allTestsSuite);
+    }
+    if (runMonteCarlo) {
+        addMonteCarloTests(allTestsSuite);
     }
 
     const suite = allTestsSuite.filter((benchmark: benchmark  & {name: string }) => {

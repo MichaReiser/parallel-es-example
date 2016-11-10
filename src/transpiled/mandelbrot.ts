@@ -17,27 +17,29 @@ export function mandelbrot({ imageWidth, imageHeight, iterations }: IMandelbrotO
         real: (max.real - min.real) / (imageWidth - 1)
     };
 
-    function calculateZ(c: IComplexNumber): number {
-        const z = { i: c.i, real: c.real };
-        let n = 0;
-
-        for (; n < iterations; ++n) {
-            if (z.real ** 2 + z.i ** 2 > 4) {
-                break;
-            }
-
-            // z ** 2 + c
-            const zI = z.i;
-            z.i = 2 * z.real * z.i + c.i;
-            z.real = z.real ** 2 - zI ** 2 + c.real;
-        }
-
-        return n;
-    }
-
     return parallel
         .range(0, imageHeight, 1, options)
-        .map(y => {
+        .map(function computeMandelbrotLine (y) {
+            // Function inline is up to 30% faster than if the function is not inline
+            // https://jsperf.com/mandelbrot-env3 https://jsperf.com/mandelbrot-env4
+            function calculateZ(c: IComplexNumber): number {
+                const z = { i: c.i, real: c.real };
+                let n = 0;
+
+                for (; n < iterations; ++n) {
+                    if (z.real ** 2 + z.i ** 2 > 4) {
+                        break;
+                    }
+
+                    // z ** 2 + c
+                    const zI = z.i;
+                    z.i = 2 * z.real * z.i + c.i;
+                    z.real = z.real ** 2 - zI ** 2 + c.real;
+                }
+
+                return n;
+            }
+
             const line = new Uint8ClampedArray(imageWidth * 4);
             const cI = max.i - y * scalingFactor.i;
 
