@@ -2161,8 +2161,8 @@ parallel-es-webpack-plugin@0.1.1:
     source-map "^0.5.6"
 
 parallel-es@^0.1.6:
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/parallel-es/-/parallel-es-0.1.9.tgz#92d66103dd2c0173c8bf7018eaba29c1f239f5fb"
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/parallel-es/-/parallel-es-0.1.10.tgz#70ef72ad994aed0a076d5547618e149a00d18463"
 
 "paralleljs@git+https://github.com/parallel-js/parallel.js.git":
   version "0.2.1"
