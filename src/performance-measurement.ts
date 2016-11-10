@@ -94,7 +94,7 @@ function addKnightBoardTests(suite: benchmark.Suite) {
 }
 
 function addMonteCarloTest(suite: benchmark.Suite, options: IMonteCarloSimulationOptions & {numberOfProjects: number, numRuns: number}) {
-    const runOptions = Object.assign(options, {
+    const runOptions = _.extend(options, {
         projects: createProjects(options.numberOfProjects)
     });
 
@@ -131,7 +131,7 @@ function addMonteCarloTests(suite: benchmark.Suite) {
 
     for (const numRuns of runs) {
         for (const numberOfProjects of  [1, 4, 8, 16]) {
-            const options = Object.assign({}, monteCarloOptions, { numberOfProjects, numRuns });
+            const options = _.extend({}, monteCarloOptions, { numberOfProjects, numRuns });
             addMonteCarloTest(suite, options);
         }
     }
