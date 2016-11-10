@@ -44,7 +44,7 @@ const monteCarloOptions = {
 };
 const monteCarloTable = document.querySelector("#montecarlo-table") as HTMLTableElement;
 
-document.querySelector("#mandelbrot-run-parallel").addEventListener("click", function (event) {
+document.querySelector("#mandelbrot-run-parallel")!.addEventListener("click", function (event) {
     event.preventDefault();
 
     mandelbrotContext!.putImageData(mandelbrotContext!.createImageData(mandelbrotCanvas.width, mandelbrotCanvas.height), 0, 0);
@@ -60,7 +60,7 @@ document.querySelector("#mandelbrot-run-parallel").addEventListener("click", fun
         .then(() => console.timeEnd("mandelbrot-parallel"), reason => console.error(reason));
 });
 
-document.querySelector("#mandelbrot-run-sync").addEventListener("click", function () {
+document.querySelector("#mandelbrot-run-sync")!.addEventListener("click", function () {
     mandelbrotContext!.putImageData(mandelbrotContext!.createImageData(mandelbrotCanvas.width, mandelbrotCanvas.height), 0, 0);
 
     setTimeout(() => {
@@ -73,7 +73,7 @@ document.querySelector("#mandelbrot-run-sync").addEventListener("click", functio
 
 });
 
-document.querySelector("#montecarlo-run-sync").addEventListener("click", function () {
+document.querySelector("#montecarlo-run-sync")!.addEventListener("click", function () {
     console.time("montecarlo-sync");
     const result = syncMonteCarlo(monteCarloOptions);
     console.timeEnd("montecarlo-sync");
@@ -81,7 +81,7 @@ document.querySelector("#montecarlo-run-sync").addEventListener("click", functio
     console.log(result);
 });
 
-document.querySelector("#montecarlo-run-parallel").addEventListener("click", function () {
+document.querySelector("#montecarlo-run-parallel")!.addEventListener("click", function () {
     console.time("montecarlo-parallel");
     parallelMonteCarlo(monteCarloOptions).then((result) => {
         console.timeEnd("montecarlo-parallel");
@@ -109,7 +109,7 @@ function paintMonteCarloResult(results: IProjectResult[]) {
 
 const knightBoardResult = document.querySelector("#knight-board-result") as HTMLParagraphElement;
 
-document.querySelector("#knight-run-sync").addEventListener("click", function () {
+document.querySelector("#knight-run-sync")!.addEventListener("click", function () {
     const boardSize = parseInt((document.querySelector("#knight-board-size")  as HTMLInputElement).value, 10);
     knightBoardResult.innerText = "Calculating...";
 
@@ -122,7 +122,7 @@ document.querySelector("#knight-run-sync").addEventListener("click", function ()
     }, 0);
 });
 
-document.querySelector("#knight-run-parallel").addEventListener("click", function () {
+document.querySelector("#knight-run-parallel")!.addEventListener("click", function () {
     const boardSize = parseInt((document.querySelector("#knight-board-size")  as HTMLInputElement).value, 10);
     knightBoardResult.innerText = "Calculating...";
 
