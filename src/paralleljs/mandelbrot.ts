@@ -58,7 +58,8 @@ declare const global: { env: IMandelbrotOptions};
 
 export function parallelJSMandelbrot(mandelbrotOptions: IMandelbrotOptions) {
     const lines = _.range(mandelbrotOptions.imageHeight);
-    return new Parallel(lines, { env: mandelbrotOptions }).require(computeMandelbrotLine)
+    return new Parallel(lines, { env: mandelbrotOptions })
+        .require(computeMandelbrotLine)
         .map(function (line: number): Uint8ClampedArray {
             return computeMandelbrotLine(line, global.env);
         });

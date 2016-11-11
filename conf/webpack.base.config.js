@@ -25,6 +25,11 @@ module.exports = new Config().merge({
                 loader: `babel?${JSON.stringify({"plugins": [ "parallel-es"] })}!awesome-typescript-loader`
             },
             {
+                test: /\.js$/,
+                include: path.resolve("./node_modules/Hamsters.js"),
+                loader: "exports?hamsters=hamsters!babel"
+            },
+            {
                 test: /parallel.*\.js/,
                 include: path.resolve(require.resolve("parallel-es"), "../"),
                 loader: "source-map"
@@ -36,6 +41,9 @@ module.exports = new Config().merge({
         ]
     },
     resolve: {
+        alias: {
+            "Hamsters.js": "Hamsters.js/src/es6/hamsters.js"
+        },
         extensions: [".webpack.js", ".web.js", ".ts", ".js"],
         modules:[
               path.join(__dirname, "../node_modules")

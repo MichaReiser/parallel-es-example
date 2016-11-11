@@ -21,6 +21,8 @@ import {threadsMandelbrot} from "./threads/mandelbrot";
 import {threadsKnightTours} from "./threads/knights-tour";
 import {Pool} from "threads";
 
+import {mandelbrot as hamstersjsMandelbrot} from "./hamstersjs/mandelbrot";
+
 let Benchmark = (benchmark as any).runInContext({ _ });
 (window as any).Benchmark = Benchmark;
 
@@ -162,7 +164,8 @@ function addMandelbrotTests(suite: benchmark.Suite) {
     }
 
     addAsyncTest(suite, `paralleljs: Mandelbrot ${mandelbrotWidth}x${mandelbrotHeight}, ${mandelbrotIterations}`, () => parallelJSMandelbrot(mandelbrotOptions));
-    addThreadJsTest(suite, `threadsjs: Mandelbrot ${mandelbrotWidth}x${mandelbrotHeight}, ${mandelbrotIterations}`, threadsMandelbrot, mandelbrotOptions)
+    addThreadJsTest(suite, `threadsjs: Mandelbrot ${mandelbrotWidth}x${mandelbrotHeight}, ${mandelbrotIterations}`, threadsMandelbrot, mandelbrotOptions);
+    addAsyncTest(suite, `hamstersjs: Mandelbrot ${mandelbrotWidth}x${mandelbrotHeight}, ${mandelbrotIterations}`, () => hamstersjsMandelbrot(mandelbrotOptions));
 }
 
 function measure() {

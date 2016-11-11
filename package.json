@@ -36,7 +36,9 @@
   },
   "dependencies": {
     "@types/paralleljs": "^0.0.17",
+    "Hamsters.js": "https://github.com/MichaReiser/Hamsters.js.git#fix-run-untyped-arrays",
     "babel-loader": "^6.2.7",
+    "exports-loader": "^0.6.3",
     "parallel-es": "^0.1.6",
     "paralleljs": "git+https://github.com/parallel-js/parallel.js.git",
     "simjs-random": "^0.2.6",
