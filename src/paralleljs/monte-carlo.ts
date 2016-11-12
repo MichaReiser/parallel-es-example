@@ -1,3 +1,4 @@
+import {toFullQualifiedURL} from "../util";
 const Parallel = require("paralleljs");
 import {Dictionary} from "lodash";
 
@@ -333,7 +334,7 @@ export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions)
             env: { options },
             envNamespace: "simulation"
         })
-        .require("http://www.simjs.com/_downloads/random-0.26.js") // the one from node uses module syntax
+        .require(toFullQualifiedURL(require("file!../../lib/simjs-random.js"))) // the one from node uses module syntax
         .require(createMonteCarloEnvironment)
         .require(calculateProject)
         .map(function (project: IProject): IProjectResult {
