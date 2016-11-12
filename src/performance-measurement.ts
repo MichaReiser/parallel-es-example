@@ -23,6 +23,7 @@ import {Pool} from "threads";
 
 import {mandelbrot as hamstersjsMandelbrot} from "./hamstersjs/mandelbrot";
 import {parallelKnightTours as hamstersjsKnightTours} from "./hamstersjs/knights-tour";
+import {parallelMonteCarlo as hamstersjsMonteCarlo} from "./hamstersjs/monte-carlo";
 
 let Benchmark = (benchmark as any).runInContext({ _ });
 (window as any).Benchmark = Benchmark;
@@ -93,7 +94,7 @@ function addKnightBoardTests(suite: benchmark.Suite) {
         addAsyncTest(suite, `parallel-transpiled: ${title}`, () => transpiledParallelKnightTours({x: 0, y: 0}, boardSize));
         addAsyncTest(suite, `paralleljs: ${title}`, () => parallelJSKnightTours({x: 0, y: 0}, boardSize));
         addThreadJsTest(suite, `threadsjs: ${title}`, threadsKnightTours, {x: 0, y: 0}, boardSize);
-        addAsyncTest(suite, `hamstersjs: ${title}`, () => hamstersjsKnightTours({x: 0, y: 0}, boardSize).then(result => console.log(result)));
+        addAsyncTest(suite, `hamstersjs: ${title}`, () => hamstersjsKnightTours({x: 0, y: 0}, boardSize));
     }
 }
 
@@ -116,6 +117,7 @@ function addMonteCarloTest(suite: benchmark.Suite, options: IMonteCarloSimulatio
     addAsyncTest(suite, `parallel-transpiled: Monte Carlo simjs ${configName}`, () => simJsParallelMonteCarlo(runOptions));
     addAsyncTest(suite, `paralleljs: Monte Carlo simjs ${configName}`, () => parallelJSMonteCarlo(runOptions));
     addThreadJsTest(suite, `threadsjs: Monte Carlo simjs ${configName}`, threadsMonteCarlo, runOptions);
+    addAsyncTest(suite, `hamstersjs: Monte Carlo Math.random ${configName}`, () => hamstersjsMonteCarlo(runOptions));
 }
 
 function addMonteCarloTests(suite: benchmark.Suite) {
