@@ -3,7 +3,7 @@ declare module "Hamsters.js" {
     type DataType = "Int8" | "Int16" | "Int32" | "Uint8" | "Uint8Clamped" | "Uint16" | "Uint32" | "Float32" | "Float64";
 
     export interface Params<T> {
-        array?: T[];
+        array: T[];
         [name: string]: any;
     }
 

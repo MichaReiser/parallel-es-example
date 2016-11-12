@@ -22,6 +22,7 @@ import {threadsKnightTours} from "./threads/knights-tour";
 import {Pool} from "threads";
 
 import {mandelbrot as hamstersjsMandelbrot} from "./hamstersjs/mandelbrot";
+import {parallelKnightTours as hamstersjsKnightTours} from "./hamstersjs/knights-tour";
 
 let Benchmark = (benchmark as any).runInContext({ _ });
 (window as any).Benchmark = Benchmark;
@@ -92,6 +93,7 @@ function addKnightBoardTests(suite: benchmark.Suite) {
         addAsyncTest(suite, `parallel-transpiled: ${title}`, () => transpiledParallelKnightTours({x: 0, y: 0}, boardSize));
         addAsyncTest(suite, `paralleljs: ${title}`, () => parallelJSKnightTours({x: 0, y: 0}, boardSize));
         addThreadJsTest(suite, `threadsjs: ${title}`, threadsKnightTours, {x: 0, y: 0}, boardSize);
+        addAsyncTest(suite, `hamstersjs: ${title}`, () => hamstersjsKnightTours({x: 0, y: 0}, boardSize).then(result => console.log(result)));
     }
 }
 
