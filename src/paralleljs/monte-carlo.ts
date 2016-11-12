@@ -333,7 +333,7 @@ export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions)
             env: { options },
             envNamespace: "simulation"
         })
-        .require("https://raw.githubusercontent.com/mvarshney/simjs-source/master/src/random.js") // the one from node uses module syntax
+        .require("http://www.simjs.com/_downloads/random-0.26.js") // the one from node uses module syntax
         .require(createMonteCarloEnvironment)
         .require(calculateProject)
         .map(function (project: IProject): IProjectResult {

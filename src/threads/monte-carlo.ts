@@ -327,7 +327,7 @@ export function threadsMonteCarlo(userOptions: IMonteCarloSimulationOptions, poo
     const options = initializeOptions(userOptions);
 
     const jobs: PromiseLike<IProjectResult>[] = [];
-    pool.run(calculateProject, [ "https://raw.githubusercontent.com/mvarshney/simjs-source/master/src/random.js" ]);
+    pool.run(calculateProject, [ "http://www.simjs.com/_downloads/random-0.26.js" ]);
 
     for (const project of options.projects) {
         jobs.push(pool.send({ options, project }).promise());
