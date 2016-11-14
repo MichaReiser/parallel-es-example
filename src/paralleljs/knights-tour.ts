@@ -17,9 +17,7 @@ export function knightTours(startPath: ICoordinate[], boardSize: number): number
     ];
 
     const board: number[] = new Array(boardSize * boardSize);
-    for (let i = 0; i < board.length; ++i) {
-        board[i] = 0;
-    }
+    board.fill(0);
 
     const numberOfFields = boardSize * boardSize;
     let results: number = 0;

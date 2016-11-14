@@ -14,9 +14,7 @@ function knightTours(this: HamsterClosure<{ array: ICoordinate[][], boardSize: n
     const boardSize = this.params.boardSize;
     const numberOfFields = boardSize * boardSize;
     const board: number[] = new Array(boardSize * boardSize);
-    for (let i = 0; i < board.length; ++i) {
-        board[i] = 0;
-    }
+    board.fill(0);
 
     let results: number = 0;
 

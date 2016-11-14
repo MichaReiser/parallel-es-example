@@ -12,9 +12,7 @@ export interface IKnightTourEnvironment {
 
 function createEnvironment(boardSize: number): IKnightTourEnvironment {
     const board: number[] = new Array(boardSize * boardSize);
-    for (let i = 0; i < board.length; ++i) {
-        board[i] = 0;
-    }
+    board.fill(0);
     return {
         board,
         boardSize
