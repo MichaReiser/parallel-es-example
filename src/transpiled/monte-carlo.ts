@@ -1,5 +1,5 @@
 import parallel from "parallel-es";
-import {groupBy, Dictionary} from "lodash";
+import {groupBy, assign, Dictionary} from "lodash";
 import Random from "simjs-random";
 
 export interface IProject {
@@ -112,7 +112,7 @@ interface IInitializedMonteCarloSimulationOptions {
 }
 
 function initializeOptions(options?: IMonteCarloSimulationOptions): IInitializedMonteCarloSimulationOptions {
-    return Object.assign({}, {
+    return assign({}, {
         investmentAmount: 1000000,
         liquidity: 10000,
         numRuns: 10000,

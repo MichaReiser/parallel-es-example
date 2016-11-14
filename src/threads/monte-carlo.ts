@@ -1,5 +1,5 @@
 import {Pool, Done} from "threads";
-import {Dictionary} from "lodash";
+import {assign, Dictionary} from "lodash";
 import {toFullQualifiedURL} from "../util";
 
 export interface IProject {
@@ -112,7 +112,7 @@ interface IInitializedMonteCarloSimulationOptions {
 }
 
 function initializeOptions(options?: IMonteCarloSimulationOptions): IInitializedMonteCarloSimulationOptions {
-    return Object.assign({}, {
+    return assign({}, {
         investmentAmount: 1000000,
         liquidity: 10000,
         numRuns: 10000,

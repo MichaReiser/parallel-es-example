@@ -1,6 +1,6 @@
 import {toFullQualifiedURL} from "../util";
 const Parallel = require("paralleljs");
-import {Dictionary} from "lodash";
+import {assign, Dictionary} from "lodash";
 
 
 /* tslint:disable:no-var-requires */
@@ -118,7 +118,7 @@ interface IInitializedMonteCarloSimulationOptions {
 }
 
 function initializeOptions(options?: IMonteCarloSimulationOptions): IInitializedMonteCarloSimulationOptions {
-    return Object.assign({}, {
+    return assign({}, {
         investmentAmount: 1000000,
         liquidity: 10000,
         numRuns: 10000,

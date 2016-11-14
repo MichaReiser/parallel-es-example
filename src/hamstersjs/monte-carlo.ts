@@ -1,5 +1,5 @@
 import {hamsters, HamsterClosure} from "Hamsters.js";
-import {Dictionary} from "lodash";
+import {assign, Dictionary} from "lodash";
 
 /* tslint:disable:no-var-requires */
 // declare function require(name: string): any;
@@ -116,7 +116,7 @@ interface IInitializedMonteCarloSimulationOptions {
 }
 
 function initializeOptions(options?: IMonteCarloSimulationOptions): IInitializedMonteCarloSimulationOptions {
-    return Object.assign({}, {
+    return assign({}, {
         investmentAmount: 1000000,
         liquidity: 10000,
         numRuns: 10000,
