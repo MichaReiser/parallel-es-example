@@ -49,14 +49,10 @@ module.exports = new Config().merge({
     plugins: [
         new webpack.optimize.CommonsChunkPlugin("common"),
         new ParallelEsPlugin({
+            workerSlaveFileName: "parallel-es/dist/worker-slave.parallel.js",
             babelOptions: {
                 "presets": [
                     ["es2015", { "modules": false }]
-                ],
-                "plugins": [
-                    ["transform-runtime", {
-                        "regenerator": false
-                    }]
                 ]
             }
         })
