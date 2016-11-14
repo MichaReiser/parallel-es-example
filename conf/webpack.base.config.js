@@ -17,28 +17,25 @@ module.exports = new Config().merge({
             {
                 test: /\.ts$/,
                 exclude: path.resolve("./src/transpiled"),
-                loader: "babel!awesome-typescript-loader"
+                loader: "babel-loader!awesome-typescript-loader"
             },
             {
                 test: /\.ts$/,
                 include: path.resolve("./src/transpiled"),
-                loader: `babel?${JSON.stringify({"plugins": [ "parallel-es"] })}!awesome-typescript-loader`
+                loader: `babel-loader?${JSON.stringify({"plugins": [ "parallel-es"] })}!awesome-typescript-loader`
             },
             {
                 test: /\.js$/,
                 include: path.resolve("./node_modules/Hamsters.js"),
-                loader: "exports?hamsters=hamsters!babel"
+                loader: "exports-loader?hamsters=hamsters!babel-loader"
             },
             {
                 test: /parallel.*\.js/,
                 include: path.resolve(require.resolve("parallel-es"), "../"),
-                loader: "source-map"
+                loader: "source-map-loader"
             }
         ],
-        noParse: [
-            /benchmark\/benchmark\.js/,
-            /paralleljs\/lib\/parallel\.js/
-        ]
+        noParse: /(benchmark\/benchmark\.js)|(paralleljs\/lib\/parallel\.js)/ // Workaround until https://github.com/webpack/webpack/issues/3284 is fixed
     },
     resolve: {
         alias: {

@@ -335,11 +335,11 @@ export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions)
 
     // Array needs to be cloned, otherwise the original array is manipulated!
     return new Parallel(options.projects.slice(), {
-            evalPath: "./" + require("file!paralleljs/lib/eval.js"),
+            evalPath: "./" + require("file-loader!paralleljs/lib/eval.js"),
             env: { options },
             envNamespace: "simulation"
         })
-        .require(toFullQualifiedURL(require("file!../../lib/simjs-random.js"))) // the one from node uses module syntax
+        .require(toFullQualifiedURL(require("file-loader!../../lib/simjs-random.js"))) // the one from node uses module syntax
         .require(createMonteCarloEnvironment)
         .require(calculateProject)
         .map(function (project: IProject): IProjectResult {
