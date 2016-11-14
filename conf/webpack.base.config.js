@@ -55,6 +55,11 @@ module.exports = new Config().merge({
             babelOptions: {
                 "presets": [
                     ["es2015", { "modules": false }]
+                ],
+                "plugins": [
+                    ["transform-runtime", {
+                        "regenerator": false
+                    }]
                 ]
             }
         })
