@@ -284,5 +284,5 @@ function createProjects(count: number): IProject[] {
         });
     }
 
-    return projects;
+    return _.shuffle(projects);
 }

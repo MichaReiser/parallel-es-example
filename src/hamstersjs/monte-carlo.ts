@@ -155,7 +155,7 @@ function runSimulation(this: HamsterClosure<{ array: IProject[], options: IIniti
                 return indices;
             }
 
-            const result: number[][] = new Array(options.numYears);
+            const result: number[][] = new Array(numYears);
             for (let year = 0; year <= numYears; ++year) {
                 result[year] = new Array(options.numRuns);
             }
@@ -180,9 +180,9 @@ function runSimulation(this: HamsterClosure<{ array: IProject[], options: IIniti
             return result;
         }
 
-        function projectsToCashFlows() {
+        function projectsToCashFlows(numYears: number) {
             const cashFlows: number[] = [];
-            for (let year = 0; year < options.numYears; ++year) {
+            for (let year = 0; year < numYears; ++year) {
                 const projectsByThisYear = projectsByStartYear[year] || [];
                 const cashFlow = -projectsByThisYear.reduce((memo, project) => memo + project.totalAmount, 0);
                 cashFlows.push(cashFlow);
@@ -190,11 +190,11 @@ function runSimulation(this: HamsterClosure<{ array: IProject[], options: IIniti
             return cashFlows;
         }
 
-        function calculateNoInterestReferenceLine(cashFlows: number[]) {
+        function calculateNoInterestReferenceLine(cashFlows: number[], numYears: number) {
             const noInterestReferenceLine: number[] = [];
 
             let investmentAmountLeft = options.investmentAmount;
-            for (let year = 0; year < options.numYears; ++year) {
+            for (let year = 0; year < numYears; ++year) {
                 investmentAmountLeft = investmentAmountLeft + cashFlows[year];
                 noInterestReferenceLine.push(investmentAmountLeft);
             }
@@ -216,10 +216,10 @@ function runSimulation(this: HamsterClosure<{ array: IProject[], options: IIniti
             arr.push(project);
         }
 
-        const cashFlows = projectsToCashFlows();
-        const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows);
-
         const numYears = projectsToSimulate.reduce((memo, project) => Math.max(memo, project.startYear), 0);
+        const cashFlows = projectsToCashFlows(numYears);
+        const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows, numYears);
+
 
         return {
             investmentAmount: options.investmentAmount,

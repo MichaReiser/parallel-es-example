@@ -223,16 +223,14 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
     const cashFlows = projectsToCashFlows();
     const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows);
 
-    const numYears = projectsToSimulate.reduce((memo, project) => Math.max(memo, project.startYear), 0);
-
     return {
         investmentAmount: options.investmentAmount,
         liquidity: options.liquidity,
         noInterestReferenceLine,
         numRuns: options.numRuns,
-        numYears,
+        numYears: options.numYears,
         projectsByStartYear,
-        simulatedValues: simulateOutcomes(cashFlows, numYears)
+        simulatedValues: simulateOutcomes(cashFlows, options.numYears)
     };
 }
 

@@ -161,7 +161,7 @@ function calculateProject(this: IMonteCarloSimulation, { project, options}: { pr
                 return indices;
             }
 
-            const result: number[][] = new Array(options.numYears);
+            const result: number[][] = new Array(numYears);
             for (let year = 0; year <= numYears; ++year) {
                 result[year] = new Array(options.numRuns);
             }
@@ -225,16 +225,14 @@ function calculateProject(this: IMonteCarloSimulation, { project, options}: { pr
         const cashFlows = projectsToCashFlows();
         const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows);
 
-        const numYears = projectsToSimulate.reduce((memo, project) => Math.max(memo, project.startYear), 0);
-
         return {
             investmentAmount: options.investmentAmount,
             liquidity: options.liquidity,
             noInterestReferenceLine,
             numRuns: options.numRuns,
-            numYears,
+            numYears: options.numYears,
             projectsByStartYear,
-            simulatedValues: simulateOutcomes(cashFlows, numYears)
+            simulatedValues: simulateOutcomes(cashFlows, options.numYears)
         };
     }
 

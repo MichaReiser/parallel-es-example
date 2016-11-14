@@ -172,7 +172,7 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
      * @param cashFlows the cash flows
      * @returns {number[][]} the simulated outcomes grouped by year
      */
-    function simulateOutcomes(cashFlows: number[], investmentAmount: number, { numRuns, numYears, volatility, performance }: { numRuns: number, numYears: number, volatility: number, performance: number}): number[][]  {
+    function simulateOutcomes(cashFlows: number[], numYears: number, { investmentAmount, numRuns, volatility, performance }: { investmentAmount: number, numRuns: number, numYears: number, volatility: number, performance: number}): number[][]  {
         const result: number[][] = new Array(numYears);
         for (let year = 0; year <= numYears; ++year) {
             result[year] = new Array(numRuns);
@@ -208,9 +208,9 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
 
     // Group projects by startYear, use lodash groupBy instead
     const projectsByStartYear = groupBy(projects, project => project.startYear);
-    const cashFlows = projectsToCashFlows(projectsByStartYear, options.numYears);
-    const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows, options.investmentAmount, options.numYears);
     const numYears = projectsToSimulate.reduce((memo, project) => Math.max(memo, project.startYear), 0);
+    const cashFlows = projectsToCashFlows(projectsByStartYear, numYears);
+    const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows, options.investmentAmount, numYears);
 
     return {
         investmentAmount: options.investmentAmount,
@@ -219,7 +219,7 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
         numRuns: options.numRuns,
         numYears,
         projectsByStartYear,
-        simulatedValues: simulateOutcomes(cashFlows, options.investmentAmount, options)
+        simulatedValues: simulateOutcomes(cashFlows, numYears, options)
     };
 }
 
