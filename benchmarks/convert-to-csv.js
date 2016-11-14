@@ -2,7 +2,7 @@ const json2csv  = require("json2csv");
 const fs = require("fs");
 const path = require("path");
 
-const directories = ["sync", "parallel-dynamic", "parallel-transpiled", "paralleljs", "threadsjs" ];
+const directories = ["sync", "parallel-dynamic", "parallel-transpiled", "paralleljs", "threadsjs", "hamstersjs" ];
 
 const outputs = [];
 const fields = [
@@ -16,7 +16,7 @@ const fields = [
         label: "Name",
         value: function (row) {
             const [set, ...nameParts] = row.benchmarks.name.split(":");
-            return nameParts.join(":").trim();
+            return nameParts.join(":").trim().replace(/\.0/g, ",0"); // Unify Monte carlo names
         }
     },{
         label: "Margin of Error",
