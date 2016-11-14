@@ -239,7 +239,12 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
 function calculateProject(project: IProject, environment: IMonteCarloEnvironment): IProjectResult {
     const NUMBER_OF_BUCKETS = 10;
     function groupForValue(value: number, groups: IGroup[]): IGroup {
-        return groups.find(group => (typeof group.from === "undefined" || group.from <= value) && (typeof group.to === "undefined" || group.to > value))!;
+        for (const group of groups) {
+            if ((typeof group.from === "undefined" || group.from <= value) && (typeof group.to === "undefined" || group.to > value)) {
+                return group;
+            }
+        }
+        throw new Error("Group for value " + value + " not found");
     }
 
     function createGroups(requiredAmount: number, noInterestReference: number): IGroup[] {
