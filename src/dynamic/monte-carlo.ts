@@ -1,21 +1,18 @@
 import parallel from "parallel-es";
 import {Dictionary} from "lodash";
 
-/* tslint:disable:no-var-requires */
-// declare function require(name: string): any;
-// const Random = require("simjs-random");
-// const random = new Random(10);
-
 export interface IProject {
     startYear: number;
     totalAmount: number;
 }
 
+type SubBuckets = { [name: string]: { group: string; min: number, max: number } };
+
 interface IBucket {
     min: number;
     max: number;
 
-    subBuckets: { [groupName: string]: { group: string; min: number, max: number } };
+    subBuckets: SubBuckets;
 }
 
 interface IGroup {
@@ -279,10 +276,21 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
 
     for (let i = 0; i < simulatedValuesThisYear.length; i += bucketSize) {
         const bucket: IBucket = {
-            max: Number.MIN_VALUE,
-            min: Number.MAX_VALUE,
+            max: Number.MIN_SAFE_INTEGER,
+            min: Number.MAX_SAFE_INTEGER,
             subBuckets: {}
         };
+
+        const subBuckets: SubBuckets = {};
+
+        // Needed to avoid deoptimization because of changed attribute orders in subBuckets. Initialize with const order
+        for (const group of groups) {
+            subBuckets[group.name] = {
+                group: group.name,
+                max: Number.MIN_SAFE_INTEGER,
+                min: Number.MAX_SAFE_INTEGER
+            };
+        }
 
         for (let j = i; j < i + bucketSize; ++j) {
             const value = simulatedValuesThisYear[j];
@@ -291,9 +299,17 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
 
             const group = groupForValue(simulatedValuesThisYear[j], groups);
             valuesByGroup[group.name] = (valuesByGroup[group.name] || 0) + 1;
-            const subBucket = bucket.subBuckets[group.name] = bucket.subBuckets[group.name] || { group: group.name, max: Number.MIN_VALUE, min: Number.MAX_VALUE };
+            const subBucket = subBuckets[group.name] = subBuckets[group.name] || { group: group.name, max: Number.MIN_VALUE, min: Number.MAX_VALUE };
             subBucket.min = Math.min(subBucket.min, value);
             subBucket.max = Math.max(subBucket.max, value);
+        }
+
+        // copy only non empty groups to bucket
+        for (const groupName of Object.keys(subBuckets)) {
+            const subBucket = subBuckets[groupName];
+            if (subBucket.min !== Number.MIN_SAFE_INTEGER) {
+                bucket.subBuckets[groupName] = subBucket;
+            }
         }
 
         buckets.push(bucket);

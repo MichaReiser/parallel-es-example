@@ -11,12 +11,15 @@ export interface IProject {
     totalAmount: number;
 }
 
+type SubBuckets = { [name: string]: { group: string; min: number, max: number } };
+
 interface IBucket {
     min: number;
     max: number;
 
-    subBuckets: { [groupName: string]: { group: string; min: number, max: number } };
+    subBuckets: SubBuckets;
 }
+
 
 interface IGroup {
     /**
@@ -129,6 +132,7 @@ function initializeOptions(options?: IMonteCarloSimulationOptions): IInitialized
 }
 
 function runSimulation(this: HamsterClosure<{ array: IProject[], options: IInitializedMonteCarloSimulationOptions }, IProjectResult>): void {
+    const projectsToSimulate = this.params.array;
     function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOptions): IMonteCarloEnvironment {
         /**
          * Performs the monte carlo simulation for all years and num runs.
@@ -199,12 +203,6 @@ function runSimulation(this: HamsterClosure<{ array: IProject[], options: IIniti
                 noInterestReferenceLine.push(investmentAmountLeft);
             }
             return noInterestReferenceLine;
-        }
-
-        let projectsToSimulate: IProject[] = options.projects;
-
-        if (options.taskIndex && options.valuesPerWorker) {
-            projectsToSimulate = options.projects.slice(options.taskIndex * options.valuesPerWorker, (options.taskIndex + 1) * options.valuesPerWorker);
         }
 
         const projects = options.projects.sort((a, b) => a.startYear - b.startYear);
@@ -281,10 +279,21 @@ function runSimulation(this: HamsterClosure<{ array: IProject[], options: IIniti
 
         for (let i = 0; i < simulatedValuesThisYear.length; i += bucketSize) {
             const bucket: IBucket = {
-                max: Number.MIN_VALUE,
-                min: Number.MAX_VALUE,
+                max: Number.MIN_SAFE_INTEGER,
+                min: Number.MAX_SAFE_INTEGER,
                 subBuckets: {}
             };
+
+            const subBuckets: SubBuckets = {};
+
+            // Needed to avoid deoptimization because of changed attribute orders in subBuckets. Initialize with const order
+            for (const group of groups) {
+                subBuckets[group.name] = {
+                    group: group.name,
+                    max: Number.MIN_SAFE_INTEGER,
+                    min: Number.MAX_SAFE_INTEGER
+                };
+            }
 
             for (let j = i; j < i + bucketSize; ++j) {
                 const value = simulatedValuesThisYear[j];
@@ -293,9 +302,17 @@ function runSimulation(this: HamsterClosure<{ array: IProject[], options: IIniti
 
                 const group = groupForValue(simulatedValuesThisYear[j], groups);
                 valuesByGroup[group.name] = (valuesByGroup[group.name] || 0) + 1;
-                const subBucket = bucket.subBuckets[group.name] = bucket.subBuckets[group.name] || { group: group.name, max: Number.MIN_VALUE, min: Number.MAX_VALUE };
+                const subBucket = subBuckets[group.name] = subBuckets[group.name] || { group: group.name, max: Number.MIN_VALUE, min: Number.MAX_VALUE };
                 subBucket.min = Math.min(subBucket.min, value);
                 subBucket.max = Math.max(subBucket.max, value);
+            }
+
+            // copy only non empty groups to bucket
+            for (const groupName of Object.keys(subBuckets)) {
+                const subBucket = subBuckets[groupName];
+                if (subBucket.min !== Number.MIN_SAFE_INTEGER) {
+                    bucket.subBuckets[groupName] = subBucket;
+                }
             }
 
             buckets.push(bucket);
@@ -321,8 +338,8 @@ function runSimulation(this: HamsterClosure<{ array: IProject[], options: IIniti
 
     const environment = createMonteCarloEnvironment(this.params.options);
 
-    for (let i = 0; i < this.params.array.length; ++i) {
-        const project = this.params.array[i];
+    for (let i = 0; i < projectsToSimulate.length; ++i) {
+        const project = projectsToSimulate[i];
         this.rtn.data.push(calculateProject(project, environment));
     }
 }

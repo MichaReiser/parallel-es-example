@@ -13,12 +13,15 @@ export interface IProject {
     totalAmount: number;
 }
 
+type SubBuckets = { [name: string]: { group: string; min: number, max: number } };
+
 interface IBucket {
     min: number;
     max: number;
 
-    subBuckets: { [groupName: string]: { group: string; min: number, max: number } };
+    subBuckets: SubBuckets;
 }
+
 
 interface IGroup {
     /**
@@ -184,9 +187,9 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
         return result;
     }
 
-    function projectsToCashFlows() {
+    function projectsToCashFlows(numYears: number) {
         const cashFlows: number[] = [];
-        for (let year = 0; year < options.numYears; ++year) {
+        for (let year = 0; year < numYears; ++year) {
             const projectsByThisYear = projectsByStartYear[year] || [];
             const cashFlow = -projectsByThisYear.reduce((memo, project) => memo + project.totalAmount, 0);
             cashFlows.push(cashFlow);
@@ -194,21 +197,15 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
         return cashFlows;
     }
 
-    function calculateNoInterestReferenceLine(cashFlows: number[]) {
+    function calculateNoInterestReferenceLine(cashFlows: number[], numYears: number) {
         const noInterestReferenceLine: number[] = [];
 
         let investmentAmountLeft = options.investmentAmount;
-        for (let year = 0; year < options.numYears; ++year) {
+        for (let year = 0; year < numYears; ++year) {
             investmentAmountLeft = investmentAmountLeft + cashFlows[year];
             noInterestReferenceLine.push(investmentAmountLeft);
         }
         return noInterestReferenceLine;
-    }
-
-    let projectsToSimulate: IProject[] = options.projects;
-
-    if (options.taskIndex && options.valuesPerWorker) {
-        projectsToSimulate = options.projects.slice(options.taskIndex * options.valuesPerWorker, (options.taskIndex + 1) * options.valuesPerWorker);
     }
 
     const projects = options.projects.sort((a, b) => a.startYear - b.startYear);
@@ -220,8 +217,9 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
         arr.push(project);
     }
 
-    const cashFlows = projectsToCashFlows();
-    const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows);
+    const numYears = options.projects.reduce((memo, project) => Math.max(memo, project.startYear), 0);
+    const cashFlows = projectsToCashFlows(numYears);
+    const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows, numYears);
 
     return {
         investmentAmount: options.investmentAmount,
@@ -230,7 +228,7 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
         numRuns: options.numRuns,
         numYears: options.numYears,
         projectsByStartYear,
-        simulatedValues: simulateOutcomes(cashFlows, options.numYears)
+        simulatedValues: simulateOutcomes(cashFlows, numYears)
     };
 }
 
@@ -283,10 +281,21 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
 
     for (let i = 0; i < simulatedValuesThisYear.length; i += bucketSize) {
         const bucket: IBucket = {
-            max: Number.MIN_VALUE,
-            min: Number.MAX_VALUE,
+            max: Number.MIN_SAFE_INTEGER,
+            min: Number.MAX_SAFE_INTEGER,
             subBuckets: {}
         };
+
+        const subBuckets: SubBuckets = {};
+
+        // Needed to avoid deoptimization because of changed attribute orders in subBuckets. Initialize with const order
+        for (const group of groups) {
+            subBuckets[group.name] = {
+                group: group.name,
+                max: Number.MIN_SAFE_INTEGER,
+                min: Number.MAX_SAFE_INTEGER
+            };
+        }
 
         for (let j = i; j < i + bucketSize; ++j) {
             const value = simulatedValuesThisYear[j];
@@ -295,9 +304,17 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
 
             const group = groupForValue(simulatedValuesThisYear[j], groups);
             valuesByGroup[group.name] = (valuesByGroup[group.name] || 0) + 1;
-            const subBucket = bucket.subBuckets[group.name] = bucket.subBuckets[group.name] || { group: group.name, max: Number.MIN_VALUE, min: Number.MAX_VALUE };
+            const subBucket = subBuckets[group.name] = subBuckets[group.name] || { group: group.name, max: Number.MIN_VALUE, min: Number.MAX_VALUE };
             subBucket.min = Math.min(subBucket.min, value);
             subBucket.max = Math.max(subBucket.max, value);
+        }
+
+        // copy only non empty groups to bucket
+        for (const groupName of Object.keys(subBuckets)) {
+            const subBucket = subBuckets[groupName];
+            if (subBucket.min !== Number.MIN_SAFE_INTEGER) {
+                bucket.subBuckets[groupName] = subBucket;
+            }
         }
 
         buckets.push(bucket);
@@ -321,7 +338,8 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
     };
 }
 
-declare const global: { simulation: { options: IInitializedMonteCarloSimulationOptions, env?: IMonteCarloEnvironment } };
+declare const global: { simulation: { options: IInitializedMonteCarloSimulationOptions} };
+declare const self: { env?: IMonteCarloEnvironment };
 
 export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions) {
     const options = initializeOptions(userOptions);
@@ -336,7 +354,12 @@ export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions)
         .require(createMonteCarloEnvironment)
         .require(calculateProject)
         .map(function (project: IProject): IProjectResult {
-            global.simulation.env = global.simulation.env || createMonteCarloEnvironment(global.simulation.options);
-            return calculateProject(project, global.simulation.env);
+            let env: IMonteCarloEnvironment;
+            if (self.env) {
+                env = self.env;
+            } else {
+                env = self.env = createMonteCarloEnvironment(global.simulation.options);
+            }
+            return calculateProject(project, env);
         });
 }
