@@ -35,7 +35,10 @@ module.exports = new Config().merge({
                 loader: "source-map-loader"
             }
         ],
-        noParse: /(benchmark\/benchmark\.js)|(paralleljs\/lib\/parallel\.js)/ // Workaround until https://github.com/webpack/webpack/issues/3284 is fixed
+        noParse: [
+            /benchmark\/benchmark\.js/,
+            /paralleljs\/lib\/parallel\.js/
+        ]
     },
     resolve: {
         alias: {

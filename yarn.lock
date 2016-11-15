@@ -365,8 +365,8 @@ babel-plugin-check-es2015-constants@^6.3.13:
     babel-runtime "^6.0.0"
 
 babel-plugin-parallel-es@^0.1.2:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/babel-plugin-parallel-es/-/babel-plugin-parallel-es-0.1.3.tgz#5bf0d1d34526f08b2eb675e0fcd304b2fb147adf"
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/babel-plugin-parallel-es/-/babel-plugin-parallel-es-0.1.4.tgz#67646eb3ee1311b740f9289be65c1c90d6ade8c8"
   dependencies:
     "@types/babel-core" "^6.7.14"
     "@types/babel-generator" "^6.7.14"
@@ -2972,8 +2972,8 @@ webpack-sources@^0.1.0:
     source-map "~0.5.3"
 
 webpack@^2.1.0-beta.25:
-  version "2.1.0-beta.26"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-2.1.0-beta.26.tgz#770eed2b04ce9863107ff138caa701a85e7b4e12"
+  version "2.1.0-beta.27"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-2.1.0-beta.27.tgz#06cb802e44118159e46b7533ae76b0d84c8c89d8"
   dependencies:
     acorn "^4.0.3"
     ajv "^4.7.0"
