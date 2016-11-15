@@ -279,7 +279,7 @@ function createProjects(count: number): IProject[] {
 
     for (let i = 0; i < count; ++i) {
         projects.push({
-            startYear: Math.round(Math.random() * 15),
+            startYear: Math.max(15 - i, 1), // 15 is the number of years... Reverse so that even the tests with only one project has to run the full simulation
             totalAmount: Math.round(Math.random() * 100000)
         });
     }
