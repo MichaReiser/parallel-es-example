@@ -136,7 +136,7 @@ function addMonteCarloTests(suite: benchmark.Suite) {
     }
 
     for (const numRuns of runs) {
-        for (const numberOfProjects of  [8, 16]) {
+        for (const numberOfProjects of  [1, 4, 8, 16]) {
             const options = _.extend({}, monteCarloOptions, { numberOfProjects, numRuns });
             addMonteCarloTest(suite, options);
         }
