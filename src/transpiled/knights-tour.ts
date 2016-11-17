@@ -1,4 +1,4 @@
-import parallel, {IParallelOptions} from "parallel-es";
+import parallel from "parallel-es";
 
 export interface ICoordinate {
     readonly x: number;
@@ -75,7 +75,7 @@ export function syncKnightTours(start: ICoordinate, boardSize: number): number {
     return knightTours([start], environment);
 }
 
-export function parallelKnightTours(start: ICoordinate, boardSize: number, options?: IParallelOptions): PromiseLike<number> {
+export function parallelKnightTours(start: ICoordinate, boardSize: number): PromiseLike<number> {
 
     function successors(coordinate: ICoordinate) {
         const moves = [
@@ -108,7 +108,7 @@ export function parallelKnightTours(start: ICoordinate, boardSize: number, optio
     }
 
     return parallel
-        .from(computeStartFields(), options)
+        .from(computeStartFields(), {maxValuesPerTask: 1}) // compute each path separately to achieve good cpu usage)
         .inEnvironment(createEnvironment, boardSize)
         .map(knightTours)
         .reduce(0, (memo, count) => memo + count);
