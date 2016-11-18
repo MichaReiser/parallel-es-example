@@ -85,6 +85,7 @@ interface IMonteCarloEnvironment {
     noInterestReferenceLine: number[];
     numRuns: number;
     numYears: number;
+    projects: IProject[];
     projectsByStartYear: Dictionary<IProject[]>;
     simulatedValues: number[][];
 }
@@ -128,9 +129,8 @@ interface IMonteCarloSimulation {
     environment?: IMonteCarloEnvironment;
 }
 
-function calculateProject(this: IMonteCarloSimulation, { project, options}: { project: IProject, options: IInitializedMonteCarloSimulationOptions}, done: Done): void {
+function calculateProject(this: IMonteCarloSimulation, { projectIndex, options}: { projectIndex: number, options: IInitializedMonteCarloSimulationOptions}, done: Done): void {
     const environment = this.environment = this.environment || createMonteCarloEnvironment(options);
-
     function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOptions): IMonteCarloEnvironment {
         const random = new (self as any).Random(10);
 
@@ -230,10 +230,13 @@ function calculateProject(this: IMonteCarloSimulation, { project, options}: { pr
             noInterestReferenceLine,
             numRuns: options.numRuns,
             numYears,
+            projects,
             projectsByStartYear,
             simulatedValues: simulateOutcomes(cashFlows, numYears)
         };
     }
+
+    const project = environment.projects[projectIndex];
 
     function groupForValue(value: number, groups: IGroup[]): IGroup {
         return groups.find(group => (typeof group.from === "undefined" || group.from <= value) && (typeof group.to === "undefined" || group.to > value))!;
@@ -376,8 +379,8 @@ export function threadsMonteCarlo(userOptions: IMonteCarloSimulationOptions, poo
     const jobs: PromiseLike<IProjectResult>[] = [];
     pool.run(calculateProject, [ toFullQualifiedURL(require("file-loader!../../lib/simjs-random.js")) ]);
 
-    for (const project of options.projects) {
-        jobs.push(pool.send({ options, project }).promise());
+    for (let i = 0; i < options.projects.length; ++i) {
+        jobs.push(pool.send({ options, projectIndex: i }).promise());
     }
 
     return Promise.all(jobs);

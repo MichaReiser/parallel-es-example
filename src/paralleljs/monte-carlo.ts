@@ -1,6 +1,6 @@
 import {toFullQualifiedURL} from "../util";
 const Parallel = require("paralleljs");
-import {Dictionary} from "lodash";
+import {Dictionary, range} from "lodash";
 
 export interface IProject {
     startYear: number;
@@ -85,6 +85,7 @@ interface IMonteCarloEnvironment {
     noInterestReferenceLine: number[];
     numRuns: number;
     numYears: number;
+    projects: IProject[],
     projectsByStartYear: Dictionary<IProject[]>;
     simulatedValues: number[][];
 }
@@ -140,7 +141,7 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
             const performance = currentYearIndex / previousYearIndex;
             currentPortfolioValue = (currentPortfolioValue + cashFlowStartOfYear) * performance;
 
-            absolute[relativeYear] =  1 + random.normal(performance, options.volatility);
+            absolute[relativeYear] = Math.round(currentPortfolioValue);
             previousYearIndex = currentYearIndex;
         }
 
@@ -222,7 +223,8 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
         liquidity: options.liquidity,
         noInterestReferenceLine,
         numRuns: options.numRuns,
-        numYears: numYears,
+        numYears,
+        projects,
         projectsByStartYear,
         simulatedValues: simulateOutcomes(cashFlows, numYears)
     };
@@ -247,6 +249,7 @@ function calculateProject(project: IProject, environment: IMonteCarloEnvironment
         const projectsSameYear = environment.projectsByStartYear[project.startYear];
 
         for (const otherProject of projectsSameYear) {
+            debugger;
             if (otherProject === project) {
                 break;
             }
@@ -369,9 +372,9 @@ declare const self: { env?: IMonteCarloEnvironment };
 
 export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions) {
     const options = initializeOptions(userOptions);
+    const indices = range(options.projects.length);
 
-    // Array needs to be cloned, otherwise the original array is manipulated!
-    return new Parallel(options.projects.slice(), {
+    return new Parallel(indices, {
             evalPath: "./" + require("file-loader!paralleljs/lib/eval.js"),
             env: { options },
             envNamespace: "simulation"
@@ -379,13 +382,14 @@ export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions)
         .require(toFullQualifiedURL(require("file-loader!../../lib/simjs-random.js"))) // the one from node uses module syntax
         .require(createMonteCarloEnvironment)
         .require(calculateProject)
-        .map(function (project: IProject): IProjectResult {
+        .map(function (i: number): IProjectResult {
             let env: IMonteCarloEnvironment;
             if (self.env) {
                 env = self.env;
             } else {
                 env = self.env = createMonteCarloEnvironment(global.simulation.options);
             }
+            const project = env.projects[i];
             return calculateProject(project, env);
         });
 }
