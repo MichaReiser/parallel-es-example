@@ -1,4 +1,4 @@
-import {Pool, Done} from "threads";
+ import {Pool, Done} from "threads";
 import {Dictionary} from "lodash";
 import {toFullQualifiedURL} from "../util";
 
@@ -220,7 +220,7 @@ function calculateProject(this: IMonteCarloSimulation, { projectIndex, options}:
             arr.push(project);
         }
 
-        const numYears = options.projects.reduce((memo, project) => Math.max(memo, project.startYear), 0);
+        const numYears = projects.reduce((memo, project) => Math.max(memo, project.startYear), 0);
         const cashFlows = projectsToCashFlows(numYears);
         const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows, numYears);
 
@@ -316,7 +316,7 @@ function calculateProject(this: IMonteCarloSimulation, { projectIndex, options}:
             bucket.max = Math.max(bucket.max, value);
 
             const group = groupForValue(simulatedValuesThisYear[j], groups);
-            valuesByGroup[group.name] = ++valuesByGroup[group.name];
+            ++valuesByGroup[group.name];
 
             const subBucket = bucket.subBuckets[group.name];
             subBucket.min = Math.min(subBucket.min, value);

@@ -311,7 +311,7 @@ function computeBucket(bucketStart: number, bucketSize: number, simulatedValuesT
         bucket.max = Math.max(bucket.max, value);
 
         const group = groupForValue(simulatedValuesThisYear[j], groups);
-        valuesByGroup[group.name] = ++valuesByGroup[group.name];
+        ++valuesByGroup[group.name];
 
         const subBucket = bucket.subBuckets[group.name];
         subBucket.min = Math.min(subBucket.min, value);

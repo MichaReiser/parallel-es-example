@@ -85,7 +85,7 @@ interface IMonteCarloEnvironment {
     noInterestReferenceLine: number[];
     numRuns: number;
     numYears: number;
-    projects: IProject[],
+    projects: IProject[];
     projectsByStartYear: Dictionary<IProject[]>;
     simulatedValues: number[][];
 }
@@ -125,64 +125,65 @@ function initializeOptions(options?: IMonteCarloSimulationOptions): IInitialized
     }, options);
 }
 
-function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOptions): IMonteCarloEnvironment {
+function toAbsoluteIndices(indices: number[], cashFlows: number[], investmentAmount: number) {
+    const absolute = new Array<number>(indices.length);
+    let currentPortfolioValue = investmentAmount;
+    let previousYearIndex = 100;
+
+    for (let relativeYear = 0; relativeYear < indices.length; ++relativeYear) {
+        const currentYearIndex = indices[relativeYear];
+        const cashFlowStartOfYear = relativeYear === 0 ? 0 : cashFlows[relativeYear - 1];
+
+        // scale current value with performance gain according to index
+        const performance = currentYearIndex / previousYearIndex;
+        currentPortfolioValue = (currentPortfolioValue + cashFlowStartOfYear) * performance;
+
+        absolute[relativeYear] = Math.round(currentPortfolioValue);
+        previousYearIndex = currentYearIndex;
+    }
+
+    return absolute;
+}
+
+function simulateSingleAbsoluteOutcome (numYears: number, cashFlows: number[], options: IInitializedMonteCarloSimulationOptions, random: any) {
+    const indices = new Array<number>(numYears + 1);
+    indices[0] = 100;
+
+    for (let i = 0; i < numYears; ++i) {
+        const randomPerformance = 1 + random.normal(options.performance, options.volatility);
+        indices[i + 1] = indices[i] * randomPerformance;
+    }
+
+    // convert the relative values from above to absolute values.
+    return toAbsoluteIndices(indices, cashFlows, options.investmentAmount);
+}
+
+/**
+ * Performs the monte carlo simulation for all years and num runs.
+ * @param cashFlows the cash flows
+ * @param numYears the number of years to simulate
+ * @returns {number[][]} the simulated outcomes grouped by year
+ */
+function simulateOutcomes(cashFlows: number[], numYears: number, options: IInitializedMonteCarloSimulationOptions): number[][]  {
     const random = new (self as any).Random(10);
 
-    function toAbsoluteIndices(indices: number[], cashFlows: number[]) {
-        const absolute = new Array<number>(indices.length);
-        let currentPortfolioValue = options.investmentAmount;
-        let previousYearIndex = 100;
-
-        for (let relativeYear = 0; relativeYear < indices.length; ++relativeYear) {
-            const currentYearIndex = indices[relativeYear];
-            const cashFlowStartOfYear = relativeYear === 0 ? 0 : cashFlows[relativeYear - 1];
-
-            // scale current value with performance gain according to index
-            const performance = currentYearIndex / previousYearIndex;
-            currentPortfolioValue = (currentPortfolioValue + cashFlowStartOfYear) * performance;
-
-            absolute[relativeYear] = Math.round(currentPortfolioValue);
-            previousYearIndex = currentYearIndex;
-        }
-
-        return absolute;
+    const result: number[][] = new Array(numYears);
+    for (let year = 0; year <= numYears; ++year) {
+        result[year] = new Array(options.numRuns);
     }
 
-    function simulateSingleAbsoluteOutcome (numYears: number, cashFlows: number[]) {
-        const indices = new Array<number>(numYears + 1);
-        indices[0] = 100;
+    for (let run = 0; run < options.numRuns; ++run) {
+        const indices = simulateSingleAbsoluteOutcome(numYears, cashFlows, options, random);
 
-        for (let i = 0; i < numYears; ++i) {
-            const randomPerformance = 1 + random.normal(options.performance, options.volatility);
-            indices[i + 1] = indices[i] * randomPerformance;
+        for (let year = 0; year < indices.length; ++year) {
+            result[year][run] = indices[year];
         }
-
-        // convert the relative values from above to absolute values.
-        return toAbsoluteIndices(indices, cashFlows);
     }
 
-    /**
-     * Performs the monte carlo simulation for all years and num runs.
-     * @param cashFlows the cash flows
-     * @param numYears the number of years to simulate
-     * @returns {number[][]} the simulated outcomes grouped by year
-     */
-    function simulateOutcomes(cashFlows: number[], numYears: number): number[][]  {
-        const result: number[][] = new Array(numYears);
-        for (let year = 0; year <= numYears; ++year) {
-            result[year] = new Array(options.numRuns);
-        }
+    return result;
+}
 
-        for (let run = 0; run < options.numRuns; ++run) {
-            const indices = simulateSingleAbsoluteOutcome(numYears, cashFlows);
-
-            for (let year = 0; year < indices.length; ++year) {
-                result[year][run] = indices[year];
-            }
-        }
-
-        return result;
-    }
+function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOptions): IMonteCarloEnvironment {
 
     function projectsToCashFlows(numYears: number) {
         const cashFlows: number[] = [];
@@ -214,7 +215,7 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
         arr.push(project);
     }
 
-    const numYears = options.projects.reduce((memo, project) => Math.max(memo, project.startYear), 0);
+    const numYears = projects.reduce((memo, project) => Math.max(memo, project.startYear), 0);
     const cashFlows = projectsToCashFlows(numYears);
     const noInterestReferenceLine = calculateNoInterestReferenceLine(cashFlows, numYears);
 
@@ -226,127 +227,130 @@ function createMonteCarloEnvironment(options: IInitializedMonteCarloSimulationOp
         numYears,
         projects,
         projectsByStartYear,
-        simulatedValues: simulateOutcomes(cashFlows, numYears)
+        simulatedValues: simulateOutcomes(cashFlows, numYears, options)
     };
 }
 
+function groupForValue(value: number, groups: IGroup[]): IGroup {
+    return groups.find(group => (typeof (group.from) === "undefined" || group.from <= value) && (typeof (group.to) === "undefined" || group.to > value))!;
+}
+
+function createGroups(requiredAmount: number, noInterestReference: number, environment: IMonteCarloEnvironment): IGroup[] {
+    return [
+        { description: "Ziel erreichbar", from: requiredAmount, name: "green", percentage: 0, separator: true},
+        { description: "mit Zusatzliquidität erreichbar", from: requiredAmount - environment.liquidity, name: "yellow", percentage: 0, separator: true, to: requiredAmount },
+        { description: "nicht erreichbar", from: noInterestReference, name: "gray", percentage: 0, separator: false, to: requiredAmount - environment.liquidity },
+        { description: "nicht erreichbar, mit Verlust", name: "red", percentage: 0, separator: false, to: noInterestReference }
+    ];
+}
+
+function calculateRequiredAmount(project: IProject, environment: IMonteCarloEnvironment) {
+    let amount = project.totalAmount;
+    const projectsSameYear = environment.projectsByStartYear[project.startYear];
+
+    for (const otherProject of projectsSameYear) {
+        if (otherProject === project) {
+            break;
+        }
+        amount += otherProject.totalAmount;
+    }
+    return amount;
+}
+
+function median(values: number[]) {
+    const half = Math.floor(values.length / 2);
+
+    if (values.length % 2) {
+        return values[half];
+    }
+
+    return (values[half - 1] + values[half]) / 2.0;
+}
+
+function computeBucket(bucketStart: number, bucketSize: number, simulatedValuesThisYear: number[], groups: IGroup[], valuesByGroup: {[p: string]: number}) {
+    const bucket: IBucket = {
+        max: Number.MIN_SAFE_INTEGER,
+        min: Number.MAX_SAFE_INTEGER,
+        // Needed to avoid deoptimization because of changed attribute orders in subBuckets. Initialize with const order
+        subBuckets: {
+            green: {
+                group: "green",
+                    max: Number.MIN_SAFE_INTEGER,
+                    min: Number.MAX_SAFE_INTEGER,
+                    empty: true
+            },
+            yellow: {
+                group: "yellow",
+                max: Number.MIN_SAFE_INTEGER,
+                min: Number.MAX_SAFE_INTEGER,
+                empty: true
+            },
+            gray: {
+                group: "gray",
+                max: Number.MIN_SAFE_INTEGER,
+                min: Number.MAX_SAFE_INTEGER,
+                empty: true
+            },
+            red: {
+                group: "red",
+                max: Number.MIN_SAFE_INTEGER,
+                min: Number.MAX_SAFE_INTEGER,
+                empty: true
+            }
+        }
+    };
+
+    const bucketEnd = bucketStart + bucketSize;
+
+    for (let j = bucketStart; j < bucketEnd; ++j) {
+        const value = simulatedValuesThisYear[j];
+
+        bucket.min = Math.min(bucket.min, value);
+        bucket.max = Math.max(bucket.max, value);
+
+        const group = groupForValue(simulatedValuesThisYear[j], groups);
+        ++valuesByGroup[group.name];
+
+        const subBucket = bucket.subBuckets[group.name];
+        subBucket.min = Math.min(subBucket.min, value);
+        subBucket.max = Math.max(subBucket.max, value);
+        subBucket.empty = false;
+    }
+
+    return bucket;
+}
+
+function computeBuckets(groups: IGroup[], simulatedValuesThisYear: number[]) {
+    const NUMBER_OF_BUCKETS = 10;
+    const valuesByGroup: {[groupName: string]: number} = {
+        green: 0,
+        yellow: 0,
+        gray: 0,
+        red: 0
+    };
+
+    const bucketSize = Math.round(simulatedValuesThisYear.length / NUMBER_OF_BUCKETS);
+    const buckets: IBucket[] = [];
+
+    for (let i = 0; i < simulatedValuesThisYear.length; i += bucketSize) {
+        const bucket = computeBucket(i, bucketSize, simulatedValuesThisYear, groups, valuesByGroup);
+
+        buckets.push(bucket);
+    }
+
+    return { buckets, valuesByGroup };
+}
+
+function compareNumbersInverse(a: number, b: number): number {
+    return a - b;
+}
+
 function calculateProject(project: IProject, environment: IMonteCarloEnvironment): IProjectResult {
-    function groupForValue(value: number, groups: IGroup[]): IGroup {
-        return groups.find(group => (typeof group.from === "undefined" || group.from <= value) && (typeof group.to === "undefined" || group.to > value))!;
-    }
-
-    function createGroups(requiredAmount: number, noInterestReference: number): IGroup[] {
-        return [
-            { description: "Ziel erreichbar", from: requiredAmount, name: "green", percentage: 0, separator: true},
-            { description: "mit Zusatzliquidität erreichbar", from: requiredAmount - environment.liquidity, name: "yellow", percentage: 0, separator: true, to: requiredAmount },
-            { description: "nicht erreichbar", from: noInterestReference, name: "gray", percentage: 0, separator: false, to: requiredAmount - environment.liquidity },
-            { description: "nicht erreichbar, mit Verlust", name: "red", percentage: 0, separator: false, to: noInterestReference }
-        ];
-    }
-
-    function calculateRequiredAmount() {
-        let amount = project.totalAmount;
-        const projectsSameYear = environment.projectsByStartYear[project.startYear];
-
-        for (const otherProject of projectsSameYear) {
-            debugger;
-            if (otherProject === project) {
-                break;
-            }
-            amount += otherProject.totalAmount;
-        }
-        return amount;
-    }
-
-    function median(values: number[]) {
-        const half = Math.floor(values.length / 2);
-
-        if (values.length % 2) {
-            return values[half];
-        }
-
-        return (values[half - 1] + values[half]) / 2.0;
-    }
-
-    function computeBucket(bucketStart: number, bucketSize: number, simulatedValuesThisYear: number[], groups: IGroup[], valuesByGroup: {[p: string]: number}) {
-        const bucket: IBucket = {
-            max: Number.MIN_SAFE_INTEGER,
-            min: Number.MAX_SAFE_INTEGER,
-            // Needed to avoid deoptimization because of changed attribute orders in subBuckets. Initialize with const order
-            subBuckets: {
-                green: {
-                    group: "green",
-                        max: Number.MIN_SAFE_INTEGER,
-                        min: Number.MAX_SAFE_INTEGER,
-                        empty: true
-                },
-                yellow: {
-                    group: "yellow",
-                    max: Number.MIN_SAFE_INTEGER,
-                    min: Number.MAX_SAFE_INTEGER,
-                    empty: true
-                },
-                gray: {
-                    group: "gray",
-                    max: Number.MIN_SAFE_INTEGER,
-                    min: Number.MAX_SAFE_INTEGER,
-                    empty: true
-                },
-                red: {
-                    group: "red",
-                    max: Number.MIN_SAFE_INTEGER,
-                    min: Number.MAX_SAFE_INTEGER,
-                    empty: true
-                }
-            }
-        };
-
-        const bucketEnd = bucketStart + bucketSize;
-
-        for (let j = bucketStart; j < bucketEnd; ++j) {
-            const value = simulatedValuesThisYear[j];
-
-            bucket.min = Math.min(bucket.min, value);
-            bucket.max = Math.max(bucket.max, value);
-
-            const group = groupForValue(simulatedValuesThisYear[j], groups);
-            valuesByGroup[group.name] = ++valuesByGroup[group.name];
-
-            const subBucket = bucket.subBuckets[group.name];
-            subBucket.min = Math.min(subBucket.min, value);
-            subBucket.max = Math.max(subBucket.max, value);
-            subBucket.empty = false;
-        }
-
-        return bucket;
-    }
-
-    function computeBuckets(groups: IGroup[], simulatedValuesThisYear: number[]) {
-        const NUMBER_OF_BUCKETS = 10;
-        const valuesByGroup: {[groupName: string]: number} = {
-            green: 0,
-            yellow: 0,
-            gray: 0,
-            red: 0
-        };
-
-        const bucketSize = Math.round(simulatedValuesThisYear.length / NUMBER_OF_BUCKETS);
-        const buckets: IBucket[] = [];
-
-        for (let i = 0; i < simulatedValuesThisYear.length; i += bucketSize) {
-            const bucket = computeBucket(i, bucketSize, simulatedValuesThisYear, groups, valuesByGroup);
-
-            buckets.push(bucket);
-        }
-
-        return { buckets, valuesByGroup };
-    }
-
-    const requiredAmount = calculateRequiredAmount();
+    const requiredAmount = calculateRequiredAmount(project, environment);
     const simulatedValuesThisYear = environment.simulatedValues[project.startYear];
-    simulatedValuesThisYear.sort((a, b) => a - b);
+    simulatedValuesThisYear.sort(compareNumbersInverse);
 
-    const groups = createGroups(requiredAmount, environment.noInterestReferenceLine[project.startYear]);
+    const groups = createGroups(requiredAmount, environment.noInterestReferenceLine[project.startYear], environment);
     const {buckets, valuesByGroup} = computeBuckets(groups, simulatedValuesThisYear);
 
     const nonEmptyGroups = groups.filter(group => !!valuesByGroup[group.name]);
@@ -380,7 +384,17 @@ export function parallelJSMonteCarlo(userOptions?: IMonteCarloSimulationOptions)
             envNamespace: "simulation"
         })
         .require(toFullQualifiedURL(require("file-loader!../../lib/simjs-random.js"))) // the one from node uses module syntax
+        .require(toAbsoluteIndices)
+        .require(simulateSingleAbsoluteOutcome)
+        .require(simulateOutcomes)
         .require(createMonteCarloEnvironment)
+        .require(groupForValue)
+        .require(createGroups)
+        .require(calculateRequiredAmount)
+        .require(median)
+        .require(computeBucket)
+        .require(computeBuckets)
+        .require(compareNumbersInverse)
         .require(calculateProject)
         .map(function (i: number): IProjectResult {
             let env: IMonteCarloEnvironment;
