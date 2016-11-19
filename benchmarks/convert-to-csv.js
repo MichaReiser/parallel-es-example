@@ -16,7 +16,19 @@ const fields = [
         label: "Name",
         value: function (row) {
             const [set, ...nameParts] = row.benchmarks.name.split(":");
-            return nameParts.join(":").trim().replace(/\.0/g, ",0"); // Unify Monte carlo names
+            let cleanName = nameParts.join(":").trim().replace(/\.0/g, ",0"); // Unify Monte carlo names
+
+            if (cleanName.endsWith("(projects: 4, runs: 1,000,000)")) {
+                cleanName = cleanName.replace("(projects: 4, runs: 1,000,000)", "1m");
+            }
+
+            if (cleanName.endsWith("(projects: 4, runs: 100,000)")) {
+                cleanName = cleanName.replace("(projects: 4, runs: 100,000)", "");
+            }
+
+            cleanName = cleanName.replace("simjs", "");
+
+            return cleanName.trim();
         }
     },{
         label: "Margin of Error",
@@ -72,7 +84,15 @@ for (const directory of directories) {
         const fileContent = fs.readFileSync(path.join(__dirname, directory, file), "utf-8");
         const json = JSON.parse(fileContent);
 
-        json.directory = directory;
+
+        let set = directory;
+        if (set === "parallel-transpiled") {
+            set = "parallel-es";
+        } else if (set === "parallel-dynamic") {
+            set = "parallel-es-dynamic";
+        }
+
+        json.directory = set;
         json.file =  file;
         outputs.push(json2csv({ data: json, fields, hasCSVColumnTitle: first, unwindPath: "benchmarks"}));
     }
