@@ -18,15 +18,20 @@ const fields = [
             const [set, ...nameParts] = row.benchmarks.name.split(":");
             let cleanName = nameParts.join(":").trim().replace(/\.0/g, ",0"); // Unify Monte carlo names
 
-            if (cleanName.endsWith("(projects: 4, runs: 1,000,000)")) {
-                cleanName = cleanName.replace("(projects: 4, runs: 1,000,000)", "1m");
+            if (cleanName.endsWith("(projects: 8, runs: 1,000,000)")) {
+                cleanName = cleanName.replace("(projects: 8, runs: 1,000,000)", "");
             }
 
-            if (cleanName.endsWith("(projects: 4, runs: 100,000)")) {
-                cleanName = cleanName.replace("(projects: 4, runs: 100,000)", "");
+            if (cleanName.endsWith("(projects: 8, runs: 100,000)")) {
+                cleanName = cleanName.replace("(projects: 8, runs: 100,000)", "100k");
             }
 
             cleanName = cleanName.replace("simjs", "");
+            cleanName = cleanName.replace("Monte Carlo", "Riskprofiling");
+
+            if (cleanName === "Mandelbrot 10000x10000, 1000") {
+                cleanName = "Mandelbrot";
+            }
 
             return cleanName.trim();
         }
@@ -86,8 +91,15 @@ for (const directory of directories) {
 
 
         let set = directory;
+        if (set === "paralleljs") {
+            set = "Parallel.js";
+        } else if (set === "hamstersjs") {
+            set = "Hamsters.js";
+        } else if (set === "threadsjs") {
+            set = "Threads.js";
+        }
         if (set === "parallel-transpiled") {
-            set = "parallel-es";
+            set = "Parallel.es";
         } else if (set === "parallel-dynamic") {
             set = "parallel-es-dynamic";
         }

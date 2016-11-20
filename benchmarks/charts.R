@@ -1,6 +1,15 @@
+require( tikzDevice )
+
 percent <- function(x, digits = 2, format = "f", ...) {
-  paste0(formatC(100 * x, format = format, digits = digits, ...), "%")
+  ifelse(is.na(x), "", formatC(100 * x, format = format, digits = digits, ...))
 }
+
+time <- function (x, ...) {
+  ifelse(x < 100, 
+         ifelse(x < 10, paste0(formatC(x, format = "f", digits = 2, ...), "s"), paste0(formatC(x, format = "f", digits = 1, ...), "s")),
+         paste0(formatC(x, format = "f", digits = 0, ...), "s"))
+}
+
 dir.create(file.path("charts"), showWarnings=FALSE)
 data <- read.csv("./benchmarks.csv")
 
@@ -9,10 +18,33 @@ computeRelativeMean <- function (record) {
   as.numeric(record["Mean..s."]) / syncBaseLine[1, "Mean..s."]
 }
 
+plotChart <- function (plotData, byBrowserVersion, environmentTitle=NULL) {
+  colours <- gray.colors(nrow(plotData), start=0.4, end=1)
+  barDensity <- c(-10, 40, 25, 0)[1:nrow(plotData)]
+  shadeAngle <- c(0, 45, -45, 0)[1:nrow(plotData)]
+  fontColors <- c("white", "black", "black", "black")[1:nrow(plotData)]
+  
+  # Reduce margin, mainly for latex output
+  par(mar=c(2,4,2,0))
+  bb <- barplot(plotData, beside=TRUE, main=environmentTitle, ylab="Relative to Sync (%)", col=colours, ylim = c(0, max(1, max(plotData, na.rm=TRUE))), density = barDensity, angle=shadeAngle)
+  legend("topleft", legend = rownames(plotData), bty="n", fill=colours, density = barDensity, angle=shadeAngle)
+  text(bb, plotData, percent(plotData, digits = 1), pos = 3, cex = 0.8, col="black")
+  
+  means <- with(byBrowserVersion, {
+    out <- matrix(nrow=nlevels(byBrowserVersion$Set), ncol=nlevels(byBrowserVersion$Name),
+                  dimnames=list(levels(byBrowserVersion$Set), levels(byBrowserVersion$Name)))
+    out[cbind(byBrowserVersion$Set, byBrowserVersion$Name)] <- byBrowserVersion$Mean..s.
+    out <- out[rowSums(is.na(out)) != ncol(out),]
+    out <- out[, colSums(is.na(out)) != nrow(out)]
+    out
+  })
+  
+  text(bb, 0, time(means), pos=3, cex=0.8, col=fontColors)
+}
+
 
 data$RelativeMean <- apply(data, 1, computeRelativeMean)
 data <- data[!is.na(data$RelativeMean), ]
-
 
 createCharts <- function (sets, tests) {
   relevant <- data[data$Set %in% sets & data$Name %in% tests, ]
@@ -33,9 +65,7 @@ createCharts <- function (sets, tests) {
           
           environmentTitle = paste(os, osVersion, browser, browserVersion)
           
-          notSync <- byBrowserVersion[byBrowserVersion$Set!="sync", ]
-          
-          pictureName <- paste0(browser, "-", browserVersion, ".png")
+          pictureName <- paste0(browser, "-", browserVersion)
           fullName <- paste0("charts/", osName, "/", pictureName)
         
           tmp <- byBrowserVersion[, c("Set", "Name", "RelativeMean")]
@@ -48,15 +78,12 @@ createCharts <- function (sets, tests) {
             out
           })
           
-          colours <- gray.colors(nrow(plotData), end=0.8)
+          png(paste0(fullName, ".png"), height=16, width=ncol(plotData) * 9, units="cm", res=300)
+          plotChart(plotData, byBrowserVersion, environmentTitle)
+          dev.off()
           
-          # Remove to plot to ploting area    
-          png(fullName, height=16, width=ncol(plotData) * 9, units="cm", res=300)
-          bb <- barplot(plotData, beside=TRUE, main=environmentTitle, ylab="Relative to Sync (%)", col=colours, ylim = c(0, max(1, max(plotData, na.rm=TRUE))))
-          legend("topleft", legend = rownames(plotData), bty="n", fill=colours)
-          text(bb, 0, percent(plotData, digits = 1), pos = 3, cex = 0.8, col="white")
-          
-          # ...and this...
+          tikz(paste0(fullName, ".tex"), height=2.9, sanitize = TRUE, engine="pdftex")
+          plotChart(plotData, byBrowserVersion)
           dev.off()
         }
       }
@@ -65,8 +92,8 @@ createCharts <- function (sets, tests) {
 }
 
 createCharts(
-  c("parallel-es", "hamstersjs", "threadsjs", "paralleljs"),
-  c("Knights Tour (5x5)", "Knights Tour (6x6)", "Mandelbrot 10000x10000, 1000", "Monte Carlo")
+  c("Parallel.es", "Hamsters.js", "Threads.js", "Parallel.js"),
+  c("Knights Tour (5x5)", "Knights Tour (6x6)", "Mandelbrot", "Monte Carlo")
 )
 
 # createCharts(
