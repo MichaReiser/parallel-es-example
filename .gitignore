@@ -3,3 +3,4 @@ dist
 node_modules
 gh-pages-out
 .Rproj.user
+benchmarks/charts
