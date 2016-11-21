@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "build": "cross-env NODE_ENV=prod webpack",
-    "start": "cross-env NODE_ENV=dev webpack-dev-server --progress --content-base src --hot",
+    "start": "cross-env NODE_ENV=dev webpack-dev-server --progress --hot",
     "test": "echo \"no tests specified\""
   },
   "author": "Micha Reiser <micha@famreiser.ch>",

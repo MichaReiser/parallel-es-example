@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 require( tikzDevice )
 
 percent <- function(x, digits = 2, format = "f", ...) {
@@ -25,8 +26,8 @@ plotChart <- function (plotData, byBrowserVersion, environmentTitle=NULL) {
   fontColors <- c("white", "black", "black", "black")[1:nrow(plotData)]
   
   # Reduce margin, mainly for latex output
-  par(mar=c(2,4,2,0))
-  bb <- barplot(plotData, beside=TRUE, main=environmentTitle, ylab="Relative to Sync (%)", col=colours, ylim = c(0, max(1, max(plotData, na.rm=TRUE))), density = barDensity, angle=shadeAngle)
+  #par(mar=c(2,4,2,0))
+  bb <- barplot(plotData, beside=TRUE, main=environmentTitle, ylab="Relative to Sync (%)", col=colours, ylim = c(0, max(1, max(plotData+0.2, na.rm=TRUE))), density = barDensity, angle=shadeAngle)
   legend("topleft", legend = rownames(plotData), bty="n", fill=colours, density = barDensity, angle=shadeAngle)
   text(bb, plotData, percent(plotData, digits = 1), pos = 3, cex = 0.8, col="black")
   
@@ -79,6 +80,10 @@ createCharts <- function (sets, tests) {
           })
           
           png(paste0(fullName, ".png"), height=16, width=ncol(plotData) * 9, units="cm", res=300)
+          plotChart(plotData, byBrowserVersion, environmentTitle)
+          dev.off()
+          
+          svg(paste0(fullName, ".svg"), height=6.29921, width=ncol(plotData) * 3.54331)
           plotChart(plotData, byBrowserVersion, environmentTitle)
           dev.off()
           

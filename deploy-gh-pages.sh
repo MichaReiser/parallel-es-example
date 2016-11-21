@@ -33,7 +33,6 @@ rm -rf $OUT_DIR/*.html || exit 0
 npm run build
 
 cp -r ./dist/* $OUT_DIR/
-cp ./src/*.html $OUT_DIR/
 
 # Now let's go have some fun with the cloned repo
 cd $OUT_DIR
