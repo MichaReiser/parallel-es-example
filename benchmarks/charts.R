@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
 require( tikzDevice )
+require(gdata)
 
 percent <- function(x, digits = 2, format = "f", ...) {
   ifelse(is.na(x), "", formatC(100 * x, format = format, digits = digits, ...))
@@ -26,7 +27,7 @@ plotChart <- function (plotData, byBrowserVersion, environmentTitle=NULL) {
   fontColors <- c("white", "black", "black", "black")[1:nrow(plotData)]
   
   # Reduce margin, mainly for latex output
-  #par(mar=c(2,4,2,0))
+  par(mar=c(2,4,2,0))
   bb <- barplot(plotData, beside=TRUE, main=environmentTitle, ylab="Relative to Sync (%)", col=colours, ylim = c(0, max(1, max(plotData+0.2, na.rm=TRUE))), density = barDensity, angle=shadeAngle)
   legend("topleft", legend = rownames(plotData), bty="n", fill=colours, density = barDensity, angle=shadeAngle)
   text(bb, plotData, percent(plotData, digits = 1), pos = 3, cex = 0.8, col="black")
@@ -49,6 +50,7 @@ data <- data[!is.na(data$RelativeMean), ]
 
 createCharts <- function (sets, tests) {
   relevant <- data[data$Set %in% sets & data$Name %in% tests, ]
+  relevant$Set <- reorder.factor(relevant$Set, new.order=sets)
 
   for(os in unique(relevant$OS)) {
     byOS <- relevant[relevant$OS==os,]
@@ -97,7 +99,7 @@ createCharts <- function (sets, tests) {
 }
 
 createCharts(
-  c("Parallel.es", "Hamsters.js", "Threads.js", "Parallel.js"),
+  c("Parallel.es", "Hamsters.js", "Parallel.js", "Threads.js"),
   c("Knights Tour (5x5)", "Knights Tour (6x6)", "Mandelbrot", "Riskprofiling")
 )
 
