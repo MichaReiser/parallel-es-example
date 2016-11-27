@@ -5,27 +5,14 @@ export interface ICoordinate {
     readonly y: number;
 }
 
-export interface IKnightTourEnvironment {
-    boardSize: number;
-    board: number[];
-}
-
-function createEnvironment(boardSize: number): IKnightTourEnvironment {
-    const board: number[] = new Array(boardSize * boardSize);
-    board.fill(0);
-    return {
-        board,
-        boardSize
-    };
-}
-
-export function knightTours(startPath: ICoordinate[], environment: IKnightTourEnvironment): number {
+export function knightTours(startPath: ICoordinate[], { boardSize }: { boardSize: number }): number {
     const moves = [
         { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
         { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
     ];
-    const boardSize = environment.boardSize;
-    const board = environment.board;
+    const board: number[] = new Array(boardSize * boardSize);
+    board.fill(0);
+
     const numberOfFields = boardSize * boardSize;
     let results: number = 0;
     const stack: { coordinate: ICoordinate, n: number }[] = startPath.map((pos, index) => ({ coordinate: pos, n: index + 1 }));
@@ -104,7 +91,7 @@ export function parallelKnightTours(start: ICoordinate, boardSize: number): Prom
 
     return parallel
         .from(computeStartFields(), {maxValuesPerTask: 1}) // compute each path separately to achieve good cpu usage
-        .inEnvironment(createEnvironment, boardSize)
+        .inEnvironment({ boardSize })
         .map(knightTours)
         .reduce(0, (memo, count) => memo + count);
 }
