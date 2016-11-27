@@ -6,11 +6,6 @@ export interface ICoordinate {
     readonly y: number;
 }
 
-export interface IKnightTourEnvironment {
-    boardSize: number;
-    board: number[];
-}
-
 export function knightTours({ startPath, boardSize }: {startPath: ICoordinate[], boardSize: number}, done: Done): void{
     const moves = [
         { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
