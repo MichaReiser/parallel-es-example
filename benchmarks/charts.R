@@ -22,22 +22,24 @@ computeRelativeMean <- function (record) {
 
 plotChart <- function (plotData, byBrowserVersion, environmentTitle=NULL) {
   colours <- gray.colors(nrow(plotData), start=0.4, end=1)
-  barDensity <- c(-10, 40, 25, 0)[1:nrow(plotData)]
-  shadeAngle <- c(0, 45, -45, 0)[1:nrow(plotData)]
-  fontColors <- c("white", "black", "black", "black")[1:nrow(plotData)]
+  numRows <- ifelse(is.null(nrow(plotData)), 1, nrow(plotData))
+  barDensity <- c(-10, 40, 25, 0)[1:numRows]
+  shadeAngle <- c(0, 45, -45, 0)[1:numRows]
+  fontColors <- c("white", "black", "black", "black")[1:numRows]
   
   # Reduce margin, mainly for latex output
   par(mar=c(2,4,2,0))
   bb <- barplot(plotData, beside=TRUE, main=environmentTitle, ylab="Relative to Sync (%)", col=colours, ylim = c(0, max(1, max(plotData+0.2, na.rm=TRUE))), density = barDensity, angle=shadeAngle)
-  legend("topleft", legend = rownames(plotData), bty="n", fill=colours, density = barDensity, angle=shadeAngle)
+  if (!is.null(rownames(plotData))) {
+    legend("topleft", legend = rownames(plotData), bty="n", fill=colours, density = barDensity, angle=shadeAngle) 
+  }
   text(bb, plotData, percent(plotData, digits = 1), pos = 3, cex = 0.8, col="black")
   
   means <- with(byBrowserVersion, {
     out <- matrix(nrow=nlevels(byBrowserVersion$Set), ncol=nlevels(byBrowserVersion$Name),
                   dimnames=list(levels(byBrowserVersion$Set), levels(byBrowserVersion$Name)))
     out[cbind(byBrowserVersion$Set, byBrowserVersion$Name)] <- byBrowserVersion$Mean..s.
-    out <- out[rowSums(is.na(out)) != ncol(out),]
-    out <- out[, colSums(is.na(out)) != nrow(out)]
+    out <- out[rowSums(is.na(out)) != ncol(out), colSums(is.na(out)) != nrow(out), drop=FALSE] 
     out
   })
   
@@ -48,7 +50,7 @@ plotChart <- function (plotData, byBrowserVersion, environmentTitle=NULL) {
 data$RelativeMean <- apply(data, 1, computeRelativeMean)
 data <- data[!is.na(data$RelativeMean), ]
 
-createCharts <- function (sets, tests) {
+createCharts <- function (sets, tests, prefix="") {
   relevant <- data[data$Set %in% sets & data$Name %in% tests, ]
   relevant$Set <- reorder.factor(relevant$Set, new.order=sets)
 
@@ -69,15 +71,14 @@ createCharts <- function (sets, tests) {
           environmentTitle = paste(os, osVersion, browser, browserVersion)
           
           pictureName <- paste0(browser, "-", browserVersion)
-          fullName <- paste0("charts/", osName, "/", pictureName)
+          fullName <- paste0("charts/", osName, "/", prefix, pictureName)
         
           tmp <- byBrowserVersion[, c("Set", "Name", "RelativeMean")]
           plotData <- with(tmp, {
             out <- matrix(nrow=nlevels(tmp$Set), ncol=nlevels(tmp$Name),
                           dimnames=list(levels(tmp$Set), levels(tmp$Name)))
             out[cbind(tmp$Set, tmp$Name)] <- tmp$RelativeMean
-            out <- out[rowSums(is.na(out)) != ncol(out),]
-            out <- out[, colSums(is.na(out)) != nrow(out)]
+            out <- out[rowSums(is.na(out)) != ncol(out), colSums(is.na(out)) != nrow(out), drop=FALSE]
             out
           })
           
@@ -89,7 +90,9 @@ createCharts <- function (sets, tests) {
           plotChart(plotData, byBrowserVersion, environmentTitle)
           dev.off()
           
-          tikz(paste0(fullName, ".tex"), height=2.9, sanitize = TRUE, engine="pdftex")
+          latexWidth = ifelse(ncol(plotData) > 2, 6.85135, 3.34065)
+          
+          tikz(paste0(fullName, ".tex"), height=2.9, width=latexWidth, sanitize = TRUE, engine="pdftex")
           plotChart(plotData, byBrowserVersion)
           dev.off()
         }
@@ -99,8 +102,14 @@ createCharts <- function (sets, tests) {
 }
 
 createCharts(
+ c("Parallel.es", "Hamsters.js", "Parallel.js", "Threads.js"),
+ c("Knights Tour (5x5)", "Knights Tour (6x6)", "Mandelbrot", "Riskprofiling")
+)
+
+createCharts(
   c("Parallel.es", "Hamsters.js", "Parallel.js", "Threads.js"),
-  c("Knights Tour (5x5)", "Knights Tour (6x6)", "Mandelbrot", "Riskprofiling")
+  c("Knights Tour (5x5)"),
+  "knight-tour-5x5"
 )
 
 # createCharts(
