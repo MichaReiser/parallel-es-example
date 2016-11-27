@@ -108,7 +108,7 @@ export function parallelKnightTours(start: ICoordinate, boardSize: number): Prom
     }
 
     return parallel
-        .from(computeStartFields(), {maxValuesPerTask: 1}) // compute each path separately to achieve good cpu usage)
+        .from(computeStartFields())
         .inEnvironment(createEnvironment, boardSize)
         .map(knightTours)
         .reduce(0, (memo, count) => memo + count);
