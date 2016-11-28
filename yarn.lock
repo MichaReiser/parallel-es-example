@@ -44,8 +44,8 @@
   resolved "https://registry.yarnpkg.com/@types/benchmark/-/benchmark-1.0.30.tgz#f6bea0baceb178155968b9984f94546f63677592"
 
 "@types/lodash@^4.14.38":
-  version "4.14.40"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.40.tgz#e67478f69bb1ad93a0e7ab6f3f276816d27088de"
+  version "4.14.41"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.41.tgz#6f65b0453778d482dc11fc11601c5c7bc98f04d0"
 
 "@types/paralleljs@^0.0.17":
   version "0.0.17"
@@ -370,9 +370,9 @@ babel-plugin-check-es2015-constants@^6.3.13:
   dependencies:
     babel-runtime "^6.0.0"
 
-babel-plugin-parallel-es@^0.1.2:
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/babel-plugin-parallel-es/-/babel-plugin-parallel-es-0.1.5.tgz#12da88eb9102ed3dc9464830da8c1b5b56065d2c"
+babel-plugin-parallel-es@^0.1.6:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/babel-plugin-parallel-es/-/babel-plugin-parallel-es-0.1.6.tgz#b5be6b4685e99d0886d4e782aff328d0fbebad08"
   dependencies:
     "@types/babel-core" "^6.7.14"
     "@types/babel-generator" "^6.7.14"
@@ -1800,8 +1800,8 @@ json3@^3.3.2:
   resolved "https://registry.yarnpkg.com/json3/-/json3-3.3.2.tgz#3c0434743df93e2f5c42aee7b19bcb483575f4e1"
 
 json5@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/json5/-/json5-0.5.0.tgz#9b20715b026cbe3778fd769edccd822d8332a5b2"
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/json5/-/json5-0.5.1.tgz#1eade7acc012034ad84e2396767ead9fa5495821"
 
 jsonify@~0.0.0:
   version "0.0.0"
@@ -1897,8 +1897,8 @@ loose-envify@^1.0.0:
     js-tokens "^2.0.0"
 
 lru-cache@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-4.0.1.tgz#1343955edaf2e37d9b9e7ee7241e27c4b9fb72be"
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-4.0.2.tgz#1d17679c069cda5d040991a09dbc2c0db377e55e"
   dependencies:
     pseudomap "^1.0.1"
     yallist "^2.0.0"

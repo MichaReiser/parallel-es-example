@@ -1,6 +1,8 @@
 import {mandelbrot as transpiledParallelMandelbrot} from "./transpiled/mandelbrot";
 import {parallelKnightTours as transpiledParallelKnightTour, syncKnightTours} from "./transpiled/knights-tour";
 import {parallelKnightTours as dynamicKnightTour} from "./dynamic/knights-tour";
+import {threadsKnightTours} from "./threads/knights-tour"
+import {Pool} from "threads";
 import {syncMandelbrot, createMandelOptions, parallelMandelbrot as dynamicParallelMandelbrot} from "./dynamic/mandelbrot";
 import {syncMonteCarlo as simJsMonteCarlo, parallelMonteCarlo as transpiledParallelMonteCarlo} from "./transpiled/monte-carlo";
 import {syncMonteCarlo as randomMonteCarlo, parallelMonteCarlo as dynamicParallelMonteCarlo, IProjectResult} from "./dynamic/monte-carlo";
@@ -16,6 +18,7 @@ const mandelbrotCanvas = document.querySelector("#mandelbrot-canvas") as HTMLCan
 const mandelbrotContext = mandelbrotCanvas.getContext("2d");
 const mandelbrotOptions = createMandelOptions(mandelbrotCanvas.width, mandelbrotCanvas.height, 10000);
 
+const pool = new Pool();
 const monteCarloOptions = {
     investmentAmount: 620000,
     numRuns: 10000,
@@ -127,7 +130,7 @@ document.querySelector("#knight-run-parallel")!.addEventListener("click", functi
     knightBoardResult.innerText = "Calculating...";
 
     console.time("knight-run-parallel");
-    parallelKnightTour({ x: 0, y: 0}, boardSize)
+    threadsKnightTours({ x: 0, y: 0}, boardSize, pool)
         .then(solutions => {
             console.timeEnd("knight-run-parallel");
             knightBoardResult.innerText = `Found ${solutions} solutions for ${boardSize}x${boardSize} board`;

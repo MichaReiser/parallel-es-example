@@ -10,51 +10,43 @@ export function knightTours(startPath: ICoordinate[], { boardSize }: { boardSize
         { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
         { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
     ];
+
+    function visitField(field: ICoordinate, n: number, board: number[]): number {
+        if (n === board.length) {
+            return 1;
+        }
+
+        let result = 0;
+        const fieldIndex = field.x * boardSize + field.y;
+
+        board[fieldIndex] = n;
+
+        for (let i = 0; i < moves.length; ++i) {
+            const move = moves[i];
+            const successor = { x: field.x + move.x, y: field.y + move.y };
+
+            // not outside of board and not yet accessed
+            const accessible = successor.x >= 0 && successor.y >= 0 && successor.x < boardSize &&  successor.y < boardSize && board[successor.x * boardSize + successor.y] === 0;
+
+            if (accessible) {
+                result += visitField(successor, n + 1, board);
+            }
+        }
+
+        board[fieldIndex] = 0;
+
+        return result;
+    }
+
     const board: number[] = new Array(boardSize * boardSize);
     board.fill(0);
-
-    const numberOfFields = boardSize * boardSize;
-    let results: number = 0;
-    const stack: { coordinate: ICoordinate, n: number }[] = startPath.map((pos, index) => ({ coordinate: pos, n: index + 1 }));
 
     for (let index = 0; index < startPath.length - 1; ++index) {
         const fieldIndex = startPath[index].x * boardSize + startPath[index].y;
         board[fieldIndex] = index + 1;
     }
 
-    while (stack.length > 0) {
-        const { coordinate, n } = stack[stack.length - 1];
-        const fieldIndex = coordinate.x * boardSize + coordinate.y;
-
-        if (board[fieldIndex] !== 0) {
-            // back tracking
-            board[fieldIndex] = 0;
-            stack.pop(); // remove current value
-            continue;
-        }
-
-        // entry
-        if (n === numberOfFields) {
-            ++results;
-            stack.pop();
-            continue;
-        }
-
-        board[fieldIndex] = n!;
-
-        for (let i = 0; i < moves.length; ++i) {
-            const move = moves[i];
-            const successor = { x: coordinate.x + move.x, y: coordinate.y + move.y };
-            // not outside of board and not yet accessed
-            const accessible = successor.x >= 0 && successor.y >= 0 && successor.x < boardSize &&  successor.y < boardSize && board[successor.x * boardSize + successor.y] === 0;
-
-            if (accessible) {
-                stack.push({ coordinate: successor, n: n + 1 });
-            }
-        }
-    }
-
-    return results;
+    return visitField(startPath[startPath.length - 1], startPath.length, board);
 }
 
 export function parallelKnightTours(start: ICoordinate, boardSize: number): PromiseLike<number> {
