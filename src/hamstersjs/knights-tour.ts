@@ -13,9 +13,6 @@ function knightTours(this: HamsterClosure<{ array: ICoordinate[][], boardSize: n
             { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
         ];
 
-        const boardSize = Math.sqrt(board.length);
-
-        // entry
         if (n === board.length) {
             return 1;
         }

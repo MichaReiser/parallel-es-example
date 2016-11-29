@@ -7,16 +7,12 @@ export interface ICoordinate {
 }
 
 export function knightTours({ startPath, boardSize }: {startPath: ICoordinate[], boardSize: number}, done: Done): void{
-        console.log(startPath);
     function visitField(field: ICoordinate, n: number, board: number[]): number {
         const moves = [
             { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
             { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
         ];
 
-        const boardSize = Math.sqrt(board.length);
-
-        // entry
         if (n === board.length) {
             return 1;
         }

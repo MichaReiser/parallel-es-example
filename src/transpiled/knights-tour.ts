@@ -10,9 +10,7 @@ const moves = [
     { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
 ];
 
-function visitField(field: ICoordinate, n: number, board: number[]): number {
-    const boardSize = Math.sqrt(board.length);
-
+function visitField(field: ICoordinate, n: number, board: number[], boardSize: number): number {
     if (n === board.length) {
         return 1;
     }
@@ -30,7 +28,7 @@ function visitField(field: ICoordinate, n: number, board: number[]): number {
         const accessible = successor.x >= 0 && successor.y >= 0 && successor.x < boardSize &&  successor.y < boardSize && board[successor.x * boardSize + successor.y] === 0;
 
         if (accessible) {
-            result += visitField(successor, n + 1, board);
+            result += visitField(successor, n + 1, board, boardSize);
         }
     }
 
@@ -48,7 +46,7 @@ export function knightTours(startPath: ICoordinate[], { boardSize }: { boardSize
         board[fieldIndex] = index + 1;
     }
 
-    return visitField(startPath[startPath.length - 1], startPath.length, board);
+    return visitField(startPath[startPath.length - 1], startPath.length, board, boardSize);
 }
 
 export function syncKnightTours(start: ICoordinate, boardSize: number): number {
