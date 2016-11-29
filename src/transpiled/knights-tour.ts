@@ -58,11 +58,6 @@ export function parallelKnightTours(start: ICoordinate, boardSize: number): Prom
     function successors(coordinate: ICoordinate) {
         const result: ICoordinate[] = [];
 
-        const moves = [
-            { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
-            { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
-        ];
-
         for (let i = 0; i < moves.length; ++i) {
             const move = moves[i];
             const successor = {x: coordinate.x + move.x, y: coordinate.y + move.y};

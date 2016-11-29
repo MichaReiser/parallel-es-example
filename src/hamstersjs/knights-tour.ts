@@ -7,12 +7,16 @@ export interface ICoordinate {
 }
 
 function knightTours(this: HamsterClosure<{ array: ICoordinate[][], boardSize: number}, number>): void {
-    function visitField(field: ICoordinate, n: number, board: number[]): number {
-        const moves = [
-            { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
-            { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
-        ];
+    const moves = [
+        { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
+        { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
+    ];
 
+    const boardSize = this.params.boardSize;
+    const board: number[] = new Array(boardSize * boardSize);
+    board.fill(0);
+
+    function visitField(field: ICoordinate, n: number): number {
         if (n === board.length) {
             return 1;
         }
@@ -30,7 +34,7 @@ function knightTours(this: HamsterClosure<{ array: ICoordinate[][], boardSize: n
             const accessible = successor.x >= 0 && successor.y >= 0 && successor.x < boardSize &&  successor.y < boardSize && board[successor.x * boardSize + successor.y] === 0;
 
             if (accessible) {
-                result += visitField(successor, n + 1, board);
+                result += visitField(successor, n + 1);
             }
         }
 
@@ -38,9 +42,6 @@ function knightTours(this: HamsterClosure<{ array: ICoordinate[][], boardSize: n
 
         return result;
     }
-    const boardSize = this.params.boardSize;
-    const board: number[] = new Array(boardSize * boardSize);
-    board.fill(0);
 
     let results: number = 0;
 
@@ -52,7 +53,7 @@ function knightTours(this: HamsterClosure<{ array: ICoordinate[][], boardSize: n
             board[fieldIndex] = index + 1;
         }
 
-        results += visitField(startPath[startPath.length - 1], startPath.length, board);
+        results += visitField(startPath[startPath.length - 1], startPath.length);
     }
     this.rtn.data.push(results);
 }

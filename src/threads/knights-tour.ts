@@ -7,12 +7,15 @@ export interface ICoordinate {
 }
 
 export function knightTours({ startPath, boardSize }: {startPath: ICoordinate[], boardSize: number}, done: Done): void{
-    function visitField(field: ICoordinate, n: number, board: number[]): number {
-        const moves = [
-            { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
-            { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
-        ];
+    const moves = [
+        { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
+        { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
+    ];
 
+    const board: number[] = new Array(boardSize * boardSize);
+    board.fill(0);
+
+    function visitField(field: ICoordinate, n: number): number {
         if (n === board.length) {
             return 1;
         }
@@ -30,7 +33,7 @@ export function knightTours({ startPath, boardSize }: {startPath: ICoordinate[],
             const accessible = successor.x >= 0 && successor.y >= 0 && successor.x < boardSize &&  successor.y < boardSize && board[successor.x * boardSize + successor.y] === 0;
 
             if (accessible) {
-                result += visitField(successor, n + 1, board);
+                result += visitField(successor, n + 1);
             }
         }
 
@@ -39,15 +42,12 @@ export function knightTours({ startPath, boardSize }: {startPath: ICoordinate[],
         return result;
     }
 
-    const board: number[] = new Array(boardSize * boardSize);
-    board.fill(0);
-
     for (let index = 0; index < startPath.length - 1; ++index) {
         const fieldIndex = startPath[index].x * boardSize + startPath[index].y;
         board[fieldIndex] = index + 1;
     }
 
-    const result = visitField(startPath[startPath.length - 1], startPath.length, board);
+    const result = visitField(startPath[startPath.length - 1], startPath.length);
     done(result);
 }
 

@@ -11,7 +11,10 @@ export function knightTours(startPath: ICoordinate[], { boardSize }: { boardSize
         { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
     ];
 
-    function visitField(field: ICoordinate, n: number, board: number[]): number {
+    const board: number[] = new Array(boardSize * boardSize);
+    board.fill(0);
+
+    function visitField(field: ICoordinate, n: number): number {
         if (n === board.length) {
             return 1;
         }
@@ -29,7 +32,7 @@ export function knightTours(startPath: ICoordinate[], { boardSize }: { boardSize
             const accessible = successor.x >= 0 && successor.y >= 0 && successor.x < boardSize &&  successor.y < boardSize && board[successor.x * boardSize + successor.y] === 0;
 
             if (accessible) {
-                result += visitField(successor, n + 1, board);
+                result += visitField(successor, n + 1);
             }
         }
 
@@ -38,15 +41,12 @@ export function knightTours(startPath: ICoordinate[], { boardSize }: { boardSize
         return result;
     }
 
-    const board: number[] = new Array(boardSize * boardSize);
-    board.fill(0);
-
     for (let index = 0; index < startPath.length - 1; ++index) {
         const fieldIndex = startPath[index].x * boardSize + startPath[index].y;
         board[fieldIndex] = index + 1;
     }
 
-    return visitField(startPath[startPath.length - 1], startPath.length, board);
+    return visitField(startPath[startPath.length - 1], startPath.length);
 }
 
 export function parallelKnightTours(start: ICoordinate, boardSize: number): PromiseLike<number> {
