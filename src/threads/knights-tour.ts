@@ -6,14 +6,16 @@ export interface ICoordinate {
     readonly y: number;
 }
 
-export function knightTours({ startPath, boardSize }: {startPath: ICoordinate[], boardSize: number}, done: Done): void{
+export interface IKnightTourEnvironment {
+    boardSize: number;
+    board: number[];
+}
+
+export function knightTours({ startPath, boardSize, board }: IKnightTourEnvironment & { startPath: ICoordinate[] }, done: Done): void{
     const moves = [
         { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
         { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
     ];
-
-    const board: number[] = new Array(boardSize * boardSize);
-    board.fill(0);
 
     function visitField(field: ICoordinate, n: number): number {
         if (n === board.length) {
@@ -97,8 +99,11 @@ export function threadsKnightTours(start: ICoordinate, boardSize: number, pool: 
             resolve(totalTours)
         });
 
+    const board: number[] = new Array(boardSize * boardSize);
+    board.fill(0);
+
     for (const startPath of computeStartFields()) {
-        pool.send({ startPath, boardSize });
+        pool.send({ startPath, board, boardSize });
     }
 
     return promise;

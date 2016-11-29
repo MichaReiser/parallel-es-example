@@ -10,6 +10,18 @@ const moves = [
     { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
 ];
 
+export interface IKnightTourEnvironment {
+    boardSize: number;
+    board: number[];
+}
+
+function createKnightTourEnvironment(boardSize: number): IKnightTourEnvironment {
+    const board: number[] = new Array(boardSize * boardSize);
+    board.fill(0);
+
+    return { board, boardSize };
+}
+
 function visitField(field: ICoordinate, n: number, board: number[], boardSize: number): number {
     if (n === board.length) {
         return 1;
@@ -37,10 +49,7 @@ function visitField(field: ICoordinate, n: number, board: number[], boardSize: n
     return result;
 }
 
-export function knightTours(startPath: ICoordinate[], { boardSize }: { boardSize: number }): number {
-    const board: number[] = new Array(boardSize * boardSize);
-    board.fill(0);
-
+export function knightTours(startPath: ICoordinate[], { board, boardSize }: IKnightTourEnvironment): number {
     for (let index = 0; index < startPath.length - 1; ++index) {
         const fieldIndex = startPath[index].x * boardSize + startPath[index].y;
         board[fieldIndex] = index + 1;
@@ -50,7 +59,7 @@ export function knightTours(startPath: ICoordinate[], { boardSize }: { boardSize
 }
 
 export function syncKnightTours(start: ICoordinate, boardSize: number): number {
-    return knightTours([start], { boardSize });
+    return knightTours([start], createKnightTourEnvironment(boardSize));
 }
 
 export function parallelKnightTours(start: ICoordinate, boardSize: number): PromiseLike<number> {
@@ -83,7 +92,7 @@ export function parallelKnightTours(start: ICoordinate, boardSize: number): Prom
 
     return parallel
         .from(computeStartFields())
-        .inEnvironment({ boardSize })
+        .inEnvironment(createKnightTourEnvironment, boardSize)
         .map(knightTours)
         .reduce(0, (memo, count) => memo + count);
 }
