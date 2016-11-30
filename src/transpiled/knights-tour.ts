@@ -5,11 +5,6 @@ export interface ICoordinate {
     readonly y: number;
 }
 
-const moves = [
-    { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
-    { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
-];
-
 export interface IKnightTourEnvironment {
     boardSize: number;
     board: number[];
@@ -22,40 +17,45 @@ function createKnightTourEnvironment(boardSize: number): IKnightTourEnvironment 
     return { board, boardSize };
 }
 
-function visitField(field: ICoordinate, n: number, board: number[], boardSize: number): number {
-    if (n === board.length) {
-        return 1;
-    }
-
-    let result = 0;
-    const fieldIndex = field.x * boardSize + field.y;
-
-    board[fieldIndex] = n;
-
-    for (let i = 0; i < moves.length; ++i) {
-        const move = moves[i];
-        const successor = { x: field.x + move.x, y: field.y + move.y };
-
-        // not outside of board and not yet accessed
-        const accessible = successor.x >= 0 && successor.y >= 0 && successor.x < boardSize &&  successor.y < boardSize && board[successor.x * boardSize + successor.y] === 0;
-
-        if (accessible) {
-            result += visitField(successor, n + 1, board, boardSize);
-        }
-    }
-
-    board[fieldIndex] = 0;
-
-    return result;
-}
-
 export function knightTours(startPath: ICoordinate[], { board, boardSize }: IKnightTourEnvironment): number {
+    const moves = [
+        { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
+        { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
+    ];
+
+    function visitField(field: ICoordinate, n: number): number {
+        if (n === board.length) {
+            return 1;
+        }
+
+        let result = 0;
+        const fieldIndex = field.x * boardSize + field.y;
+
+        board[fieldIndex] = n;
+
+        for (let i = 0; i < moves.length; ++i) {
+            const move = moves[i];
+            const successor = { x: field.x + move.x, y: field.y + move.y };
+
+            // not outside of board and not yet accessed
+            const accessible = successor.x >= 0 && successor.y >= 0 && successor.x < boardSize &&  successor.y < boardSize && board[successor.x * boardSize + successor.y] === 0;
+
+            if (accessible) {
+                result += visitField(successor, n + 1);
+            }
+        }
+
+        board[fieldIndex] = 0;
+
+        return result;
+    }
+
     for (let index = 0; index < startPath.length - 1; ++index) {
         const fieldIndex = startPath[index].x * boardSize + startPath[index].y;
         board[fieldIndex] = index + 1;
     }
 
-    return visitField(startPath[startPath.length - 1], startPath.length, board, boardSize);
+    return visitField(startPath[startPath.length - 1], startPath.length);
 }
 
 export function syncKnightTours(start: ICoordinate, boardSize: number): number {
@@ -65,6 +65,11 @@ export function syncKnightTours(start: ICoordinate, boardSize: number): number {
 export function parallelKnightTours(start: ICoordinate, boardSize: number): PromiseLike<number> {
 
     function successors(coordinate: ICoordinate) {
+        const moves = [
+            {x: -2, y: -1}, {x: -2, y: 1}, {x: -1, y: -2}, {x: -1, y: 2},
+            {x: 1, y: -2}, {x: 1, y: 2}, {x: 2, y: -1}, {x: 2, y: 1}
+        ];
+
         const result: ICoordinate[] = [];
 
         for (let i = 0; i < moves.length; ++i) {
