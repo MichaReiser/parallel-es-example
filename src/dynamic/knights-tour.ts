@@ -5,23 +5,14 @@ export interface ICoordinate {
     readonly y: number;
 }
 
-export interface IKnightTourEnvironment {
-    boardSize: number;
-    board: number[];
-}
-
-function createKnightTourEnvironment(boardSize: number): IKnightTourEnvironment {
-    const board: number[] = new Array(boardSize * boardSize);
-    board.fill(0);
-
-    return { board, boardSize };
-}
-
-export function knightTours(startPath: ICoordinate[], { board, boardSize }: IKnightTourEnvironment): number {
+export function knightTours(startPath: ICoordinate[], { boardSize }: { boardSize: number }): number {
     const moves = [
         { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
         { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
     ];
+
+    const board: number[] = new Array(boardSize * boardSize);
+    board.fill(0);
 
     function visitField(field: ICoordinate, n: number): number {
         if (n === board.length) {
@@ -92,7 +83,7 @@ export function parallelKnightTours(start: ICoordinate, boardSize: number): Prom
 
     return parallel
         .from(computeStartFields())
-        .inEnvironment(createKnightTourEnvironment, boardSize)
+        .inEnvironment({ boardSize: boardSize })
         .map(knightTours)
         .reduce(0, (memo, count) => memo + count);
 }

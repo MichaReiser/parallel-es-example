@@ -13,8 +13,6 @@ function knightTours(this: HamsterClosure<{ array: ICoordinate[][], boardSize: n
     ];
 
     const boardSize = this.params.boardSize;
-    const board: number[] = new Array(boardSize * boardSize);
-    board.fill(0);
 
     function visitField(field: ICoordinate, n: number): number {
         if (n === board.length) {
@@ -43,9 +41,13 @@ function knightTours(this: HamsterClosure<{ array: ICoordinate[][], boardSize: n
         return result;
     }
 
+    const board: number[] = new Array(boardSize * boardSize);
     let results: number = 0;
 
     for (let i = 0; i < this.params.array.length; ++i) {
+        // reset board, otherwise the markers from the previous run are still set
+        board.fill(0);
+
         const startPath = this.params.array[i];
 
         for (let index = 0; index < startPath.length - 1; ++index) {

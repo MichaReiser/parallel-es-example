@@ -5,23 +5,14 @@ export interface ICoordinate {
     readonly y: number;
 }
 
-export interface IKnightTourEnvironment {
-    boardSize: number;
-    board: number[];
-}
-
-function createKnightTourEnvironment(boardSize: number): IKnightTourEnvironment {
-    const board: number[] = new Array(boardSize * boardSize);
-    board.fill(0);
-
-    return { board, boardSize };
-}
-
-export function knightTours(startPath: ICoordinate[], boardSize: number, board: number[]): number {
+export function knightTours(startPath: ICoordinate[], boardSize: number): number {
     const moves = [
         { x: -2, y: -1 }, { x: -2, y: 1}, { x: -1, y: -2 }, { x: -1, y: 2 },
         { x: 1, y: -2 }, { x: 1, y: 2}, { x: 2, y: -1 }, { x: 2, y: 1 }
     ];
+
+    const board: number[] = new Array(boardSize * boardSize);
+    board.fill(0);
 
     function visitField(field: ICoordinate, n: number): number {
         if (n === board.length) {
@@ -58,7 +49,7 @@ export function knightTours(startPath: ICoordinate[], boardSize: number, board: 
     return visitField(startPath[startPath.length - 1], startPath.length);
 }
 
-declare const global: { env: IKnightTourEnvironment};
+declare const global: { env: { boardSize: number }};
 
 export function parallelJSKnightTours(start: ICoordinate, boardSize: number): PromiseLike<number> {
 
@@ -92,10 +83,10 @@ export function parallelJSKnightTours(start: ICoordinate, boardSize: number): Pr
         return result;
     }
 
-    return new Parallel(computeStartFields(), { env: createKnightTourEnvironment(boardSize) })
+    return new Parallel(computeStartFields(), { env: { boardSize } })
         .require(knightTours)
         .map(function (startField: ICoordinate[]) {
-            return knightTours(startField, global.env.boardSize, global.env.board);
+            return knightTours(startField, global.env.boardSize);
         })
         .reduce(function (toursPerRun: number[]) {
             return toursPerRun.reduce((memo, current) => memo + current, 0);
