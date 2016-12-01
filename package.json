@@ -39,7 +39,7 @@
   "dependencies": {
     "@types/paralleljs": "^0.0.17",
     "Hamsters.js": "https://github.com/MichaReiser/Hamsters.js.git#fix-run-untyped-arrays",
-    "parallel-es": "^0.1.6",
+    "parallel-es": "^0.1.15",
     "paralleljs": "git+https://github.com/parallel-js/parallel.js.git",
     "simjs-random": "^0.2.6",
     "threads": "^0.7.1"

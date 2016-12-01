@@ -2163,9 +2163,9 @@ parallel-es-webpack-plugin@0.1.1:
     babel-loader "^6.2.5"
     source-map "^0.5.6"
 
-parallel-es@^0.1.6:
-  version "0.1.14"
-  resolved "https://registry.yarnpkg.com/parallel-es/-/parallel-es-0.1.14.tgz#8bc40fe19ca31cada1cfaf2a2b8cf5bcb1b879f7"
+parallel-es@^0.1.15:
+  version "0.1.15"
+  resolved "https://registry.yarnpkg.com/parallel-es/-/parallel-es-0.1.15.tgz#f6f4014fda6d8a72bcb3d266bcc1a6d923159fab"
 
 "paralleljs@git+https://github.com/parallel-js/parallel.js.git":
   version "0.2.1"
