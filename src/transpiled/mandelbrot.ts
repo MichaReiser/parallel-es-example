@@ -17,46 +17,48 @@ export function mandelbrot({ imageWidth, imageHeight, iterations }: IMandelbrotO
         real: (max.real - min.real) / (imageWidth - 1)
     };
 
-    return parallel
-        .range(0, imageHeight, 1, options)
-        .map(function computeMandelbrotLine (y) {
-            // Function inline is up to 30% faster than if the function is not inline
-            // https://jsperf.com/mandelbrot-env3 https://jsperf.com/mandelbrot-env4
-            function calculateZ(c: IComplexNumber): number {
-                const z = { i: c.i, real: c.real };
-                let n = 0;
+    function computeMandelbrotLine (y: number): Uint8ClampedArray {
+        // Function inline is up to 30% faster than if the function is not inline
+        // https://jsperf.com/mandelbrot-env3 https://jsperf.com/mandelbrot-env4
+        function calculateZ(c: IComplexNumber): number {
+            const z = { i: c.i, real: c.real };
+            let n = 0;
 
-                for (; n < iterations; ++n) {
-                    if (z.real ** 2 + z.i ** 2 > 4) {
-                        break;
-                    }
-
-                    // z ** 2 + c
-                    const zI = z.i;
-                    z.i = 2 * z.real * z.i + c.i;
-                    z.real = z.real ** 2 - zI ** 2 + c.real;
+            for (; n < iterations; ++n) {
+                if (z.real ** 2 + z.i ** 2 > 4) {
+                    break;
                 }
 
-                return n;
+                // z ** 2 + c
+                const zI = z.i;
+                z.i = 2 * z.real * z.i + c.i;
+                z.real = z.real ** 2 - zI ** 2 + c.real;
             }
 
-            const line = new Uint8ClampedArray(imageWidth * 4);
-            const cI = max.i - y * scalingFactor.i;
+            return n;
+        }
 
-            for (let x = 0; x < imageWidth; ++x) {
-                const c = {
-                    i: cI,
-                    real: min.real + x * scalingFactor.real
-                };
+        const line = new Uint8ClampedArray(imageWidth * 4);
+        const cI = max.i - y * scalingFactor.i;
 
-                const n = calculateZ(c);
-                const base = x * 4;
-                /* tslint:disable:no-bitwise */
-                line[base] = n & 0xFF;
-                line[base + 1] = n & 0xFF00;
-                line[base + 2] = n & 0xFF0000;
-                line[base + 3] = 255;
-            }
-            return line;
-        });
+        for (let x = 0; x < imageWidth; ++x) {
+            const c = {
+                i: cI,
+                real: min.real + x * scalingFactor.real
+            };
+
+            const n = calculateZ(c);
+            const base = x * 4;
+            /* tslint:disable:no-bitwise */
+            line[base] = n & 0xFF;
+            line[base + 1] = n & 0xFF00;
+            line[base + 2] = n & 0xFF0000;
+            line[base + 3] = 255;
+        }
+        return line;
+    }
+
+    return parallel
+        .range(0, imageHeight, 1, options)
+        .map(computeMandelbrotLine);
 }

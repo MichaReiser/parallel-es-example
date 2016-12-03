@@ -33,7 +33,7 @@
   version "6.7.14"
   resolved "https://registry.yarnpkg.com/@types/babel-types/-/babel-types-6.7.14.tgz#a8faeb55853724a854f845cfeb357a59fc76d5bf"
 
-"@types/babylon@*", "@types/babylon@^6.7.14":
+"@types/babylon@*", "@types/babylon@^6.7.15":
   version "6.7.15"
   resolved "https://registry.yarnpkg.com/@types/babylon/-/babylon-6.7.15.tgz#b3978b4293ca58cecb5519b7070bc5b454e34adb"
   dependencies:
@@ -59,9 +59,9 @@
   version "2.1.28"
   resolved "https://registry.yarnpkg.com/@types/requirejs/-/requirejs-2.1.28.tgz#bfb2c1d5a03a22ab137ff020abae9338b66efdad"
 
-"@types/source-map@^0.1.28":
-  version "0.1.29"
-  resolved "https://registry.yarnpkg.com/@types/source-map/-/source-map-0.1.29.tgz#d7048a60180b09f8aa6d53bda311c6b51cbd7018"
+"@types/source-map@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@types/source-map/-/source-map-0.5.0.tgz#dd34bbd8e32fe4e74f2e3d8ac07f8aa5b45a47ac"
 
 "Hamsters.js@https://github.com/MichaReiser/Hamsters.js.git#fix-run-untyped-arrays":
   version "3.9.0"
@@ -349,7 +349,7 @@ babel-helpers@^6.16.0:
     babel-runtime "^6.0.0"
     babel-template "^6.16.0"
 
-babel-loader@^6.2.5, babel-loader@^6.2.7:
+babel-loader@^6.2.7, babel-loader@^6.2.8:
   version "6.2.8"
   resolved "https://registry.yarnpkg.com/babel-loader/-/babel-loader-6.2.8.tgz#30d7183aef60afc140b36443676b7acb4c12ac9c"
   dependencies:
@@ -370,17 +370,17 @@ babel-plugin-check-es2015-constants@^6.3.13:
   dependencies:
     babel-runtime "^6.0.0"
 
-babel-plugin-parallel-es@^0.1.6:
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/babel-plugin-parallel-es/-/babel-plugin-parallel-es-0.1.6.tgz#b5be6b4685e99d0886d4e782aff328d0fbebad08"
+babel-plugin-parallel-es@^0.1.8:
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/babel-plugin-parallel-es/-/babel-plugin-parallel-es-0.1.8.tgz#35f19f1896f99b9ea4cc2cc0f8652adc776a3761"
   dependencies:
     "@types/babel-core" "^6.7.14"
     "@types/babel-generator" "^6.7.14"
     "@types/babel-template" "^6.7.14"
     "@types/babel-traverse" "^6.7.15"
     "@types/babel-types" "^6.7.14"
-    "@types/babylon" "^6.7.14"
-    "@types/source-map" "^0.1.28"
+    "@types/babylon" "^6.7.15"
+    "@types/source-map" "^0.5.0"
     babel-code-frame "^6.16.0"
     babel-plugin-undeclared-variables-check "^6.8.0"
     source-map "^0.5.6"
@@ -2155,12 +2155,12 @@ pako@~0.2.0:
   version "0.2.9"
   resolved "https://registry.yarnpkg.com/pako/-/pako-0.2.9.tgz#f3f7522f4ef782348da8161bad9ecfd51bf83a75"
 
-parallel-es-webpack-plugin@0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/parallel-es-webpack-plugin/-/parallel-es-webpack-plugin-0.1.1.tgz#71d8d0408600265233bcd66a619a99fcb84eb9ed"
+parallel-es-webpack-plugin@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/parallel-es-webpack-plugin/-/parallel-es-webpack-plugin-0.1.2.tgz#eb80dc97938e71f4155b3a0967d1b883404740b2"
   dependencies:
     babel-core "^6.17.0"
-    babel-loader "^6.2.5"
+    babel-loader "^6.2.8"
     source-map "^0.5.6"
 
 parallel-es@^0.1.16:
