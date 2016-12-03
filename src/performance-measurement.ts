@@ -82,19 +82,21 @@ function addThreadJsTest(this: any, suite: benchmark.Suite, name: string, fn: (.
 }
 
 function addKnightBoardTests(suite: benchmark.Suite) {
-    const boardSizes = knightRunner6x6.checked ? [5, 6] : [5];
+    const boardSizes = knightRunner6x6.checked ? [6] : [5];
 
     for (const boardSize of boardSizes) {
+        const start = {x: 0, y: 0};
+
         const title = `Knights Tour (${boardSize}x${boardSize})`;
         suite.add(`sync: ${title}`, function () {
             syncKnightTours({x: 0, y: 0}, boardSize);
         });
 
-        addAsyncTest(suite, `parallel-dynamic: ${title}`, () => dynamicParallelKnightTours({x: 0, y: 0}, boardSize));
-        addAsyncTest(suite, `parallel-transpiled: ${title}`, () => transpiledParallelKnightTours({x: 0, y: 0}, boardSize));
-        addAsyncTest(suite, `paralleljs: ${title}`, () => parallelJSKnightTours({x: 0, y: 0}, boardSize));
-        addThreadJsTest(suite, `threadsjs: ${title}`, threadsKnightTours, {x: 0, y: 0}, boardSize);
-        addAsyncTest(suite, `hamstersjs: ${title}`, () => hamstersjsKnightTours({x: 0, y: 0}, boardSize));
+        addAsyncTest(suite, `parallel-dynamic: ${title}`, () => dynamicParallelKnightTours(start, boardSize));
+        addAsyncTest(suite, `parallel-transpiled: ${title}`, () => transpiledParallelKnightTours(start, boardSize));
+        addAsyncTest(suite, `paralleljs: ${title}`, () => parallelJSKnightTours(start, boardSize));
+        addThreadJsTest(suite, `threadsjs: ${title}`, threadsKnightTours, start, boardSize);
+        addAsyncTest(suite, `hamstersjs: ${title}`, () => hamstersjsKnightTours(start, boardSize));
     }
 }
 
