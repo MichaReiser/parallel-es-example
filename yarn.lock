@@ -1882,9 +1882,13 @@ lodash.uniq@^4.3.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
 
-lodash@4.16.6, lodash@^4.13.1, lodash@^4.14.0, lodash@^4.16.2, lodash@^4.16.4, lodash@^4.2.0, lodash@^4.3.0:
+lodash@^4.13.1, lodash@^4.14.0, lodash@^4.16.2, lodash@^4.16.4, lodash@^4.2.0, lodash@^4.3.0:
   version "4.16.6"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.16.6.tgz#d22c9ac660288f3843e16ba7d2b5d06cca27d777"
+
+lodash@^4.17.2:
+  version "4.17.2"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.2.tgz#34a3055babe04ce42467b607d700072c7ff6bf42"
 
 longest@^1.0.1:
   version "1.0.1"
@@ -2163,9 +2167,9 @@ parallel-es-webpack-plugin@0.1.1:
     babel-loader "^6.2.5"
     source-map "^0.5.6"
 
-parallel-es@^0.1.15:
-  version "0.1.15"
-  resolved "https://registry.yarnpkg.com/parallel-es/-/parallel-es-0.1.15.tgz#f6f4014fda6d8a72bcb3d266bcc1a6d923159fab"
+parallel-es@^0.1.16:
+  version "0.1.16"
+  resolved "https://registry.yarnpkg.com/parallel-es/-/parallel-es-0.1.16.tgz#6c08132525a8f566c7a46f38b796b28316c402d8"
 
 "paralleljs@git+https://github.com/parallel-js/parallel.js.git":
   version "0.2.1"

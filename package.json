@@ -26,7 +26,7 @@
     "exports-loader": "^0.6.3",
     "file-loader": "^0.9.0",
     "json2csv": "^3.7.1",
-    "lodash": "4.16.6",
+    "lodash": "^4.17.2",
     "parallel-es-webpack-plugin": "0.1.1",
     "platform": "^1.3.2",
     "simjs-random": "^0.2.6",
@@ -39,7 +39,7 @@
   "dependencies": {
     "@types/paralleljs": "^0.0.17",
     "Hamsters.js": "https://github.com/MichaReiser/Hamsters.js.git#fix-run-untyped-arrays",
-    "parallel-es": "^0.1.15",
+    "parallel-es": "^0.1.16",
     "paralleljs": "git+https://github.com/parallel-js/parallel.js.git",
     "simjs-random": "^0.2.6",
     "threads": "^0.7.1"
