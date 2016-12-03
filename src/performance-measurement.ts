@@ -82,7 +82,7 @@ function addThreadJsTest(this: any, suite: benchmark.Suite, name: string, fn: (.
 }
 
 function addKnightBoardTests(suite: benchmark.Suite) {
-    const boardSizes = knightRunner6x6.checked ? [6] : [5];
+    const boardSizes = knightRunner6x6.checked ? [5, 6] : [5];
 
     for (const boardSize of boardSizes) {
         const start = {x: 0, y: 0};
