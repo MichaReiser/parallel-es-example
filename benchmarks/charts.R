@@ -29,7 +29,7 @@ plotChart <- function (plotData, byBrowserVersion, environmentTitle=NULL) {
   
   # Reduce margin, mainly for latex output
   par(mar=c(2,4,2,0))
-  bb <- barplot(plotData, beside=TRUE, main=environmentTitle, ylab="Relative to Sync (%)", col=colours, ylim = c(0, max(1, max(plotData+0.2, na.rm=TRUE))), density = barDensity, angle=shadeAngle)
+  bb <- barplot(plotData, beside=TRUE, main=environmentTitle, ylab="Fraction of sequential runtime", col=colours, ylim = c(0, max(1, max(plotData+0.2, na.rm=TRUE))), density = barDensity, angle=shadeAngle)
   if (!is.null(rownames(plotData))) {
     legend("topleft", legend = rownames(plotData), bty="n", fill=colours, density = barDensity, angle=shadeAngle) 
   }
