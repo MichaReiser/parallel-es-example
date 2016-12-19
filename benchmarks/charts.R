@@ -103,7 +103,7 @@ createCharts <- function (sets, tests, prefix="") {
 
 createCharts(
  c("Parallel.es", "Hamsters.js", "Parallel.js", "Threads.js"),
- c("Knights Tour (5x5)", "Knights Tour (6x6)", "Mandelbrot", "Riskprofiling")
+ c("Knights Tour (5x5)", "Knights Tour (6x6)", "Mandelbrot", "Risk Profiling")
 )
 
 createCharts(

@@ -27,7 +27,7 @@ const fields = [
             }
 
             cleanName = cleanName.replace("simjs", "");
-            cleanName = cleanName.replace("Monte Carlo", "Riskprofiling");
+            cleanName = cleanName.replace("Monte Carlo", "Risk Profiling");
 
             if (cleanName === "Mandelbrot 10000x10000, 1000") {
                 cleanName = "Mandelbrot";
