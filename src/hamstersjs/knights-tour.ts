@@ -1,5 +1,5 @@
-import {hamsters, HamsterClosure} from "Hamsters.js";
-import {Params} from "Hamsters.js";
+import {hamsters, HamsterClosure} from "hamsters.js";
+import {Params} from "hamsters.js";
 
 export interface ICoordinate {
     readonly x: number;

@@ -1,4 +1,4 @@
-import {hamsters, HamsterClosure} from "Hamsters.js";
+import {hamsters, HamsterClosure} from "hamsters.js";
 import {Dictionary} from "lodash";
 
 export interface IProject {

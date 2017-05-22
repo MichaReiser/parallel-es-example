@@ -1,4 +1,4 @@
-import {hamsters, HamsterClosure} from "Hamsters.js";
+import {hamsters, HamsterClosure} from "hamsters.js";
 import * as _ from "lodash";
 
 export interface IComplexNumber {
