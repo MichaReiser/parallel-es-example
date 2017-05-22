@@ -1,4 +1,4 @@
-declare module "Hamsters.js" {
+declare module "hamsters.js" {
 
     type DataType = "Int8" | "Int16" | "Int32" | "Uint8" | "Uint8Clamped" | "Uint16" | "Uint32" | "Float32" | "Float64";
 
